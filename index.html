@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ginesys One · Dev</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0d0d0d;
+  --surface:     #141414;
+  --surface-2:   #1a1a1a;
+  --border:      #242424;
+  --border-hi:   #333;
+  --text-1:      #e8e8e6;
+  --text-2:      #888;
+  --text-3:      #444;
+  --green:       #4fca43;
+  --green-glow:  rgba(79,202,67,.07);
+  --green-border: rgba(79,202,67,.14);
+}
+
+html, body {
+  height: 100%;
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 100vh;
+}
+
+/* ── LAUNCHER SHELL ── */
+.launcher {
+  width: 100%;
+  max-width: 540px;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  opacity: .8;
+}
+
+.header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  letter-spacing: .04em;
+}
+
+.header-env {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: var(--green);
+  text-transform: uppercase;
+}
+
+.header-env::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+/* ── SEARCH ── */
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  padding: 13px 16px;
+  background: var(--surface);
+  margin-bottom: 6px;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+.search-wrap:focus-within {
+  border-color: rgba(79,202,67,.3);
+  box-shadow: 0 0 0 3px rgba(79,202,67,.05);
+}
+
+.prompt {
+  color: var(--green);
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 13.5px;
+  color: var(--text-1);
+  caret-color: var(--green);
+  min-width: 0;
+}
+
+.search-input::placeholder { color: var(--text-3); font-style: italic; }
+
+.search-count {
+  font-size: 10px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: color .15s;
+}
+
+/* ── RESULTS ── */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 10px;
+  margin-bottom: 32px;
+}
+
+.group { display: flex; flex-direction: column; }
+
+.group-label {
+  font-size: 9px;
+  letter-spacing: .16em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  padding: 0 10px;
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.group-items { display: flex; flex-direction: column; gap: 1px; }
+
+/* ── ITEM ── */
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 10px 10px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text-1);
+  border: 1px solid transparent;
+  transition: background .1s, border-color .1s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.item:hover,
+.item.focused {
+  background: var(--green-glow);
+  border-color: var(--green-border);
+}
+
+.item-index {
+  font-size: 10px;
+  color: var(--text-3);
+  width: 20px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.item.focused .item-index { color: var(--green); }
+
+.item-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1);
+  letter-spacing: -.01em;
+}
+
+.item-alias {
+  font-size: 10px;
+  color: var(--text-3);
+  font-style: italic;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.item-arrow {
+  font-size: 11px;
+  color: var(--text-3);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity .1s, transform .1s, color .1s;
+  flex-shrink: 0;
+}
+
+.item:hover .item-arrow,
+.item.focused .item-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--green);
+}
+
+/* hidden items (filtered) */
+.item.hidden { display: none; }
+.group.hidden { display: none; }
+
+/* ── NO RESULTS ── */
+.no-results {
+  display: none;
+  padding: 10px 10px;
+  font-size: 12px;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+.no-results.show { display: block; }
+
+/* ── FOOTER ── */
+.footer {
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: .03em;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.footer-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+kbd {
+  background: var(--surface-2);
+  border: 1px solid var(--border-hi);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--text-2);
+}
+
+.footer-spacer { flex: 1; }
+
+.footer-version {
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: .06em;
+}
+</style>
+</head>
+<body>
+
+<div class="launcher">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-logo">
+      <svg width="32" height="18" viewBox="0 0 173 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g1" x1="36" y1="14" x2="76" y2="70" gradientUnits="userSpaceOnUse">
+            <stop offset=".16" stop-color="#4FCA43"/>
+            <stop offset=".88" stop-color="#415549"/>
+          </linearGradient>
+        </defs>
+        <path d="M9.5 50C9.5 28.1 27.2 10.4 49.1 10.4c11 0 19.2 4.2 25.5 11.2 6.2 7 10.6 16.6 14.3 27.6 3.6 10.8 7.7 19.6 13.3 25.8 5.4 6 12.3 9.5 21.7 9.5 18.2 0 33.1-14.1 34.4-32H123.9c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5H161c1.4 0 2.5 1.1 2.5 2.5 0 21.9-17.7 39.6-39.6 39.6-11 0-19.2-4.2-25.5-11.2-6.2-7-10.6-16.6-14.3-27.6-3.6-10.8-7.7-19.6-13.3-25.8C65.4 18.9 58.5 15.5 49.1 15.5 30 15.5 14.6 31 14.6 50s15.4 34.5 34.5 34.5l.5-.004c11.3-.174 21.3-5.83 27.5-14.4l.08-.103c.836-1.052 2.36-1.274 3.46-.485 1.14.816 1.4 2.4.59 3.54l-.34.467C73.8 83.2 62.3 89.5 49.4 89.6L49.1 89.6C27.2 89.6 9.5 71.9 9.5 50z" fill="#4FCA43"/>
+        <path d="M123.9 10.4c13.1 0 24.6 6.3 31.9 16.1l.34.47.07.109c.73 1.131.45 2.645-.66 3.435-1.1.79-2.63.568-3.46-.484l-.08-.103-.3-.408C145.4 21 135.3 15.5 123.9 15.5c-11.6 0-21.8 5.7-28.1 14.4l-.08.104c-.836 1.052-2.36 1.274-3.46.485-1.14-.816-1.4-2.4-.59-3.54l.34-.467C99.3 16.7 110.9 10.4 123.9 10.4z" fill="#415549"/>
+        <path d="M49.1 10.4C27.2 10.4 9.5 28.1 9.5 50s17.7 39.6 39.6 39.6l.31-.001c12.9-.1 24.4-6.42 31.5-16.1l.34-.467c.82-1.14.55-2.724-.59-3.54-1.1-.79-2.624-.567-3.46.485l-.08.103C70.9 78.7 60.9 84.35 49.6 84.52L49.1 84.5C30 84.5 14.6 69 14.6 50s15.4-34.5 34.5-34.5V10.4z" fill="url(#g1)"/>
+      </svg>
+    </div>
+    <div class="header-meta">
+      <span class="header-title">ginesys one · dev</span>
+      <span class="header-env">local</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <span class="prompt">›</span>
+    <input
+      class="search-input"
+      type="text"
+      id="searchInput"
+      placeholder="search pages..."
+      autocomplete="off"
+      spellcheck="false"
+      autofocus
+    />
+    <span class="search-count" id="searchCount">2 pages</span>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results"></div>
+  <div class="no-results" id="noResults">no pages match "<span id="noResultsQuery"></span>"</div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-hint"><kbd>↑</kbd><kbd>↓</kbd> navigate</div>
+    <div class="footer-hint"><kbd>↵</kbd> open</div>
+    <div class="footer-hint"><kbd>esc</kbd> clear</div>
+    <div class="footer-spacer"></div>
+    <span class="footer-version">v0.1.0</span>
+  </div>
+
+</div>
+
+<script>
+const pages = [
+  {
+    group:  'CORE',
+    name:   'Design System',
+    alias:  'ds',
+    url:    'apps/design-system/',
+    desc:   'Tokens, components, and patterns',
+  },
+  {
+    group:  'PROTO',
+    name:   'SSO Prototype',
+    alias:  'sso',
+    url:    'apps/sso/',
+    desc:   'Single sign-on portal UI',
+  },
+];
+
+/* ── Build DOM ── */
+const resultsEl   = document.getElementById('results');
+const noResultsEl = document.getElementById('noResults');
+const noResultsQ  = document.getElementById('noResultsQuery');
+const countEl     = document.getElementById('searchCount');
+const searchInput = document.getElementById('searchInput');
+
+// Group pages
+const groups = {};
+pages.forEach((p, i) => {
+  if (!groups[p.group]) groups[p.group] = [];
+  groups[p.group].push({ ...p, idx: i });
+});
+
+// Render
+Object.entries(groups).forEach(([groupName, items]) => {
+  const groupEl = document.createElement('div');
+  groupEl.className = 'group';
+  groupEl.dataset.group = groupName;
+
+  const labelEl = document.createElement('div');
+  labelEl.className = 'group-label';
+  labelEl.textContent = groupName;
+
+  const itemsEl = document.createElement('div');
+  itemsEl.className = 'group-items';
+
+  items.forEach((p) => {
+    const a = document.createElement('a');
+    a.className = 'item';
+    a.href = p.url;
+    a.dataset.name  = p.name.toLowerCase();
+    a.dataset.alias = p.alias.toLowerCase();
+    a.dataset.group = groupName.toLowerCase();
+    a.innerHTML = `
+      <span class="item-index">—</span>
+      <span class="item-name">${p.name}</span>
+      <span class="item-alias">${p.alias}</span>
+      <span class="item-arrow">→</span>
+    `;
+    itemsEl.appendChild(a);
+  });
+
+  groupEl.appendChild(labelEl);
+  groupEl.appendChild(itemsEl);
+  resultsEl.appendChild(groupEl);
+});
+
+/* ── Keyboard nav ── */
+let focusedIdx = -1;
+
+function allItems() {
+  return [...document.querySelectorAll('.item:not(.hidden)')];
+}
+
+function setFocus(idx) {
+  const items = allItems();
+  if (!items.length) return;
+  focusedIdx = (idx + items.length) % items.length;
+  items.forEach((el, i) => el.classList.toggle('focused', i === focusedIdx));
+  items[focusedIdx]?.scrollIntoView({ block: 'nearest' });
+}
+
+function clearFocus() {
+  focusedIdx = -1;
+  document.querySelectorAll('.item').forEach(el => el.classList.remove('focused'));
+}
+
+/* ── Search & filter ── */
+function filter(q) {
+  const lq = q.trim().toLowerCase();
+  let visible = 0;
+
+  document.querySelectorAll('.item').forEach(el => {
+    const match = !lq
+      || el.dataset.name.includes(lq)
+      || el.dataset.alias.includes(lq)
+      || el.dataset.group.includes(lq);
+    el.classList.toggle('hidden', !match);
+    if (match) visible++;
+  });
+
+  // Hide empty groups
+  document.querySelectorAll('.group').forEach(g => {
+    const hasVisible = [...g.querySelectorAll('.item')].some(i => !i.classList.contains('hidden'));
+    g.classList.toggle('hidden', !hasVisible);
+  });
+
+  noResultsQ.textContent = q;
+  noResultsEl.classList.toggle('show', visible === 0 && lq.length > 0);
+  countEl.textContent = visible === pages.length
+    ? `${pages.length} pages`
+    : `${visible} of ${pages.length}`;
+
+  clearFocus();
+  if (visible > 0) setFocus(0);
+}
+
+searchInput.addEventListener('input', e => filter(e.target.value));
+
+searchInput.addEventListener('keydown', e => {
+  const items = allItems();
+  if (e.key === 'ArrowDown')  { e.preventDefault(); setFocus(focusedIdx + 1); }
+  if (e.key === 'ArrowUp')    { e.preventDefault(); setFocus(focusedIdx - 1); }
+  if (e.key === 'Enter') {
+    const target = focusedIdx >= 0 ? items[focusedIdx] : items[0];
+    if (target) window.location.href = target.href;
+  }
+  if (e.key === 'Escape') {
+    searchInput.value = '';
+    filter('');
+    clearFocus();
+  }
+});
+
+// Init count
+countEl.textContent = `${pages.length} pages`;
+</script>
+</body>
+</html>
