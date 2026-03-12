@@ -1,0 +1,195 @@
+/* =============================================================================
+   GINESYS ONE — DESIGN TOKENS
+   Single source of truth for all colors and typography across the suite.
+
+   Structure:
+     @theme   — font tokens (also registers Tailwind font utilities)
+     :root    — primitive color palette, then semantic aliases
+
+   Usage:
+     Inline styles  →  style={{ color: 'var(--color-text-primary)' }}
+     Tailwind arb.  →  className="text-[var(--color-text-primary)]"
+   ============================================================================= */
+
+
+/* ── TYPOGRAPHY
+   Defined in @theme so Tailwind's font-sans / font-display utilities
+   resolve to these families instead of the default system stack.
+   ──────────────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans:      'DM Sans', system-ui, sans-serif;
+  --font-display:   'DM Serif Display', Georgia, serif;
+  --font-serif-alt: 'Playfair Display', Georgia, serif;
+
+  --font-weight-light:    300;
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+}
+
+
+/* =============================================================================
+   PRIMITIVE COLOR PALETTE
+   Raw values only. Reference these via semantic tokens below, not directly
+   in component code.
+   ============================================================================= */
+
+:root {
+  /* ── Green ── */
+  --color-green-50:    #eef4eb;
+  --color-green-100:   #eef6eb;
+  --color-green-200:   #6dbb5a;
+  --color-green-400:   #4fca43;
+  --color-green-600:   #4f7c3f;
+  --color-green-900:   #1e3d16;
+  --color-green-950:   #142a0f;
+  --color-green-muted: #415549;
+
+  /* Green used on dark/panel backgrounds */
+  --color-green-accent:     rgba(160, 220, 120, 1);
+  --color-green-accent-dim: rgba(160, 220, 120, 0.7);
+
+  /* Ambient glow layers in the login panel */
+  --color-green-glow-1: rgba(90, 148, 69, 0.22);
+  --color-green-glow-2: rgba(79, 124, 63, 0.16);
+  --color-green-glow-3: rgba(30, 61, 22, 0.5);
+
+  /* ── Neutral ── */
+  --color-neutral-0:   #ffffff;
+  --color-neutral-50:  #fafaf9;
+  --color-neutral-75:  #f5f7f4;
+  --color-neutral-100: #f7f7f6;
+  --color-neutral-150: #f5f5f3;
+  --color-neutral-200: #f0f0ee;
+  --color-neutral-250: #efefed;
+  --color-neutral-300: #e8e8e6;
+  --color-neutral-325: #d0d0cc;
+  --color-neutral-350: #d8d8d5;
+  --color-neutral-400: #c8c8c5;
+  --color-neutral-450: #c0c0bc;
+  --color-neutral-500: #a8a8a5;
+  --color-neutral-600: #6b6b68;
+  --color-neutral-900: #1a1a18;
+
+  /* ── Red ── */
+  --color-red-50:  #fdf0f0;
+  --color-red-400: #e05252;
+  --color-red-500: #c94444;
+  --color-red-600: #c9402a;
+
+  /* ── Amber ── */
+  --color-amber-50:  #fef5e3;
+  --color-amber-500: #c47d0e;
+
+  /* ── Indigo ── */
+  --color-indigo-50:         #ededfc;
+  --color-indigo-400-border: rgba(91, 91, 214, 0.25);
+  --color-indigo-500:        #5b5bd6;
+
+  /* ── Blue (admin role badge, enterprise avatar) ── */
+  --color-blue-50:  #eef2fb;
+  --color-blue-400: #3b6fd4;
+  --color-blue-600: #1a6fc4;
+  --color-blue-700: #2d8fe8;
+}
+
+
+/* =============================================================================
+   SEMANTIC COLOR TOKENS
+   Named by intent, mapped to primitives. Update a primitive above and every
+   semantic reference updates automatically.
+   ============================================================================= */
+
+/* ── Brand ── */
+:root {
+  --color-brand-primary:       var(--color-green-600);
+  --color-brand-primary-hover: var(--color-green-900);
+  --color-brand-vivid:         var(--color-green-400);
+  --color-brand-logo-muted:    var(--color-green-muted);
+  --color-brand-subtle:        var(--color-green-50);
+  --color-brand-dark-bg:       var(--color-green-950);
+  --color-brand-avatar-light:  var(--color-green-200);
+  --color-brand-accent:        var(--color-green-accent);
+  --color-brand-accent-dim:    var(--color-green-accent-dim);
+
+  /* Gradient shorthands */
+  --gradient-avatar-primary: linear-gradient(135deg, var(--color-green-200), var(--color-green-600));
+  --gradient-bg-launcher:    linear-gradient(170deg, var(--color-green-100) 0%, var(--color-neutral-75) 45%, var(--color-neutral-100) 100%);
+}
+
+/* ── Text ── */
+:root {
+  --color-text-primary:     var(--color-neutral-900);
+  --color-text-secondary:   var(--color-neutral-600);
+  --color-text-tertiary:    var(--color-neutral-500);
+  --color-text-placeholder: var(--color-neutral-500);
+  --color-text-disabled:    var(--color-neutral-450);
+  --color-text-brand:       var(--color-brand-primary);
+  --color-text-on-dark:     var(--color-neutral-0);
+  --color-text-danger:      var(--color-red-400);
+  --color-text-expired:     var(--color-red-600);
+  --color-text-warning:     var(--color-amber-500);
+  --color-text-info:        var(--color-indigo-500);
+  --color-text-success:     var(--color-brand-primary);
+}
+
+/* ── Background ── */
+:root {
+  --color-bg-page:         var(--color-neutral-50);
+  --color-bg-surface:      var(--color-neutral-0);
+  --color-bg-subtle:       var(--color-neutral-100);
+  --color-bg-muted:        var(--color-neutral-150);
+  --color-bg-inverse:      var(--color-neutral-900);
+  --color-bg-brand-subtle: var(--color-green-50);
+  --color-bg-danger:       var(--color-red-50);
+  --color-bg-warning:      var(--color-amber-50);
+  --color-bg-info:         var(--color-indigo-50);
+}
+
+/* ── Border ── */
+:root {
+  --color-border-default:      var(--color-neutral-300);
+  --color-border-subtle:       var(--color-neutral-250);
+  --color-border-muted:        var(--color-neutral-200);
+  --color-border-strong:       var(--color-neutral-400);
+  --color-border-hover:        var(--color-neutral-325);
+  --color-border-brand:        var(--color-brand-primary);
+  --color-border-brand-subtle: rgba(79, 124, 63, 0.12);
+  --color-border-brand-field:  rgba(79, 124, 63, 0.20);
+  --color-border-danger:       var(--color-red-400);
+  --color-border-danger-hover: var(--color-red-500);
+}
+
+/* ── Focus rings ── */
+:root {
+  --shadow-focus-brand:       0 0 0 3.5px rgba(79, 124, 63, 0.10);
+  --shadow-focus-brand-sm:    0 0 0 3px rgba(79, 124, 63, 0.09);
+  --shadow-focus-brand-field: 0 0 0 3px rgba(79, 124, 63, 0.08);
+}
+
+/* ── Status badges ── */
+:root {
+  --color-status-active-bg:    var(--color-green-50);
+  --color-status-active-text:  var(--color-brand-primary);
+  --color-status-danger-bg:    var(--color-red-50);
+  --color-status-danger-text:  var(--color-red-400);
+  --color-status-warning-bg:   var(--color-amber-50);
+  --color-status-warning-text: var(--color-amber-500);
+}
+
+/* ── Role badges ── */
+:root {
+  --color-role-holder-bg:   var(--color-amber-50);
+  --color-role-holder-text: var(--color-amber-500);
+  --color-role-member-bg:   var(--color-neutral-200);
+  --color-role-member-text: var(--color-neutral-600);
+  --color-role-admin-bg:    var(--color-blue-50);
+  --color-role-admin-text:  var(--color-blue-400);
+}
+
+/* ── Misc ── */
+:root {
+  --color-scrollbar-thumb: var(--color-neutral-300);
+  --color-separator:       var(--color-neutral-350);
+}

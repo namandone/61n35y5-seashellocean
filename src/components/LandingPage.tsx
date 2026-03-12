@@ -68,7 +68,7 @@ export default function LandingPage({ onLaunchSSO }: Props) {
 
   const SectionLabel = ({ label }: { label: string }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
-      <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6b6b68' }}>
+      <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
         {label}
       </span>
     </div>
@@ -87,7 +87,7 @@ export default function LandingPage({ onLaunchSSO }: Props) {
           display: 'flex', alignItems: 'center', gap: 14,
           padding: '16px 18px',
           cursor: isLive ? 'pointer' : 'default',
-          background: hovered ? '#f7f7f6' : 'transparent',
+          background: hovered ? 'var(--color-bg-subtle)' : 'transparent',
           transition: 'background 0.12s',
         }}
       >
@@ -95,12 +95,12 @@ export default function LandingPage({ onLaunchSSO }: Props) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontSize: 16, fontWeight: 500,
-            color: isLive ? '#1a1a18' : '#6b6b68',
+            color: isLive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
             letterSpacing: '-0.2px', marginBottom: 3,
           }}>
             {item.title}
           </div>
-          <div style={{ fontSize: 12, color: '#6b6b68', lineHeight: 1.55 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', lineHeight: 1.55 }}>
             {item.description}
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function LandingPage({ onLaunchSSO }: Props) {
           <div style={{
             flexShrink: 0,
             display: 'flex', alignItems: 'center', gap: 3,
-            fontSize: 12, fontWeight: 600, color: '#4f7c3f',
+            fontSize: 12, fontWeight: 600, color: 'var(--color-text-brand)',
             opacity: hovered ? 1 : 0, transition: 'opacity 0.12s',
           }}>
             Open
@@ -124,29 +124,24 @@ export default function LandingPage({ onLaunchSSO }: Props) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fafaf9', fontFamily: "'DM Sans', 'Inter', sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
-        * { box-sizing: border-box; }
-        input { outline: none; }
-      `}</style>
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg-page)', fontFamily: 'var(--font-sans)' }}>
 
       {/* Topbar */}
       <header style={{
-        height: 52, borderBottom: '1px solid #efefed',
+        height: 52, borderBottom: '1px solid var(--color-border-subtle)',
         display: 'flex', alignItems: 'center',
-        padding: '0 32px', background: '#fafaf9',
+        padding: '0 32px', background: 'var(--color-bg-page)',
         position: 'sticky', top: 0, zIndex: 10,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
           <GinesysLogo />
-          <span style={{ fontSize: 12, fontWeight: 500, color: '#6b6b68' }}>Ginesys</span>
-          <span style={{ color: '#d8d8d5', fontSize: 14, margin: '0 1px' }}>/</span>
-          <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: 16, color: '#1a1a18', fontStyle: 'italic' }}>Vision</span>
+          <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)' }}>Ginesys</span>
+          <span style={{ color: 'var(--color-separator)', fontSize: 14, margin: '0 1px' }}>/</span>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, color: 'var(--color-text-primary)', fontStyle: 'italic' }}>Vision</span>
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4f7c3f' }} />
-          <span style={{ fontSize: 12, color: '#6b6b68', fontWeight: 500 }}>Internal · Design Playground</span>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-brand-primary)' }} />
+          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>Internal · Design Playground</span>
         </div>
       </header>
 
@@ -156,15 +151,15 @@ export default function LandingPage({ onLaunchSSO }: Props) {
         {/* Heading */}
         <div style={{ marginBottom: 40 }}>
           <h1 style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: 'var(--font-display)',
             fontSize: 36, fontWeight: 400,
-            color: '#1a1a18', letterSpacing: '-0.8px',
+            color: 'var(--color-text-primary)', letterSpacing: '-0.8px',
             lineHeight: 1.15, margin: '0 0 12px',
           }}>
             The design playground<br />
-            <em style={{ color: '#4f7c3f' }}>for new ideas.</em>
+            <em style={{ color: 'var(--color-text-brand)' }}>for new ideas.</em>
           </h1>
-          <p style={{ fontSize: 16, color: '#6b6b68', lineHeight: 1.65, margin: 0, maxWidth: 420 }}>
+          <p style={{ fontSize: 16, color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0, maxWidth: 420 }}>
             Early-stage workflows, interaction concepts, and explorations — before they become product.
           </p>
         </div>
@@ -173,14 +168,14 @@ export default function LandingPage({ onLaunchSSO }: Props) {
         <div
           style={{
             display: 'flex', alignItems: 'center', gap: 9,
-            border: '1.5px solid #e8e8e6', borderRadius: 11,
-            padding: '0 13px', height: 40, background: 'white',
+            border: '1.5px solid var(--color-border-default)', borderRadius: 11,
+            padding: '0 13px', height: 40, background: 'var(--color-bg-surface)',
             marginBottom: 40,
           }}
-          onFocusCapture={e => (e.currentTarget.style.borderColor = '#4f7c3f')}
-          onBlurCapture={e => (e.currentTarget.style.borderColor = '#e8e8e6')}
+          onFocusCapture={e => (e.currentTarget.style.borderColor = 'var(--color-border-brand)')}
+          onBlurCapture={e => (e.currentTarget.style.borderColor = 'var(--color-border-default)')}
         >
-          <svg width="13" height="13" fill="none" stroke="#c0c0bc" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+          <svg width="13" height="13" fill="none" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, stroke: 'var(--color-text-disabled)' }}>
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input
@@ -190,22 +185,22 @@ export default function LandingPage({ onLaunchSSO }: Props) {
             placeholder="Search pages, prototypes, tags…"
             style={{
               flex: 1, border: 'none', background: 'transparent',
-              fontSize: 14, color: '#1a1a18',
-              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 14, color: 'var(--color-text-primary)',
+              fontFamily: 'var(--font-sans)',
             }}
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#c0c0bc', padding: 0, fontSize: 17, lineHeight: 1 }}
+              style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'var(--color-text-disabled)', padding: 0, fontSize: 17, lineHeight: 1 }}
             >×</button>
           )}
         </div>
 
         {/* List */}
         {noResults ? (
-          <div style={{ textAlign: 'center', padding: '48px 0', color: '#c8c8c5', fontSize: 13 }}>
-            No results for "<span style={{ color: '#6b6b68' }}>{query}</span>"
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-border-strong)', fontSize: 13 }}>
+            No results for "<span style={{ color: 'var(--color-text-secondary)' }}>{query}</span>"
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -214,10 +209,10 @@ export default function LandingPage({ onLaunchSSO }: Props) {
             {prototypes.length > 0 && (
               <div>
                 <SectionLabel label="Prototypes" />
-                <div style={{ border: '1px solid #efefed', borderRadius: 12, overflow: 'hidden', background: 'white' }}>
+                <div style={{ border: '1px solid var(--color-border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--color-bg-surface)' }}>
                   {prototypes.map((item, i) => (
                     <div key={item.id}>
-                      {i > 0 && <div style={{ height: 1, background: '#f5f5f3', margin: '0 14px' }} />}
+                      {i > 0 && <div style={{ height: 1, background: 'var(--color-bg-muted)', margin: '0 14px' }} />}
                       <Row item={item} />
                     </div>
                   ))}
@@ -229,10 +224,10 @@ export default function LandingPage({ onLaunchSSO }: Props) {
             {core.length > 0 && (
               <div>
                 <SectionLabel label="Core" />
-                <div style={{ border: '1px solid #efefed', borderRadius: 12, overflow: 'hidden', background: 'white' }}>
+                <div style={{ border: '1px solid var(--color-border-subtle)', borderRadius: 12, overflow: 'hidden', background: 'var(--color-bg-surface)' }}>
                   {core.map((item, i) => (
                     <div key={item.id}>
-                      {i > 0 && <div style={{ height: 1, background: '#f5f5f3', margin: '0 14px' }} />}
+                      {i > 0 && <div style={{ height: 1, background: 'var(--color-bg-muted)', margin: '0 14px' }} />}
                       <Row item={item} />
                     </div>
                   ))}
@@ -246,11 +241,11 @@ export default function LandingPage({ onLaunchSSO }: Props) {
 
       {/* Footer */}
       <footer style={{
-        borderTop: '1px solid #efefed', padding: '14px 32px',
+        borderTop: '1px solid var(--color-border-subtle)', padding: '14px 32px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
-        <span style={{ fontSize: 12, color: '#a8a8a5' }}>© 2026 Ginesys One · Internal use only</span>
-        <span style={{ fontSize: 12, color: '#a8a8a5' }}>Ginesys Vision</span>
+        <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>© 2026 Ginesys One · Internal use only</span>
+        <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)' }}>Ginesys Vision</span>
       </footer>
     </div>
   )

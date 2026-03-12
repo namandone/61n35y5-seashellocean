@@ -1,4 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;1,400&display=swap');
 @import "tailwindcss";
+@import "./tokens.css";
+
+* { box-sizing: border-box; }
+input { outline: none; }
+
+body {
+  font-family: var(--font-sans);
+}
 
 @keyframes gradientDrift {
   0%   { transform: translate(0%, 0%) scale(1); }
@@ -10,4 +19,4 @@
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #e8e8e6; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--color-scrollbar-thumb); border-radius: 4px; }

@@ -29,7 +29,7 @@ export default function LoginScreen({ onLogin }: Props) {
       {/* ── Left Panel ── */}
       <div
         className="w-1/2 flex flex-col p-12 relative overflow-hidden"
-        style={{ background: '#142a0f' }}
+        style={{ background: 'var(--color-brand-dark-bg)' }}
       >
         {/* Animated gradient background */}
         <div
@@ -37,9 +37,9 @@ export default function LoginScreen({ onLogin }: Props) {
           style={{
             inset: '-20%', width: '140%', height: '140%',
             background: `
-              radial-gradient(ellipse 70% 55% at 25% 15%, rgba(90,148,69,.22) 0%, transparent 60%),
-              radial-gradient(ellipse 55% 70% at 85% 75%, rgba(79,124,63,.16) 0%, transparent 60%),
-              radial-gradient(ellipse 45% 45% at 55% 50%, rgba(30,61,22,.5) 0%, transparent 100%)
+              radial-gradient(ellipse 70% 55% at 25% 15%, var(--color-green-glow-1) 0%, transparent 60%),
+              radial-gradient(ellipse 55% 70% at 85% 75%, var(--color-green-glow-2) 0%, transparent 60%),
+              radial-gradient(ellipse 45% 45% at 55% 50%, var(--color-green-glow-3) 0%, transparent 100%)
             `,
             animation: 'gradientDrift 18s ease-in-out infinite alternate',
           }}
@@ -49,10 +49,10 @@ export default function LoginScreen({ onLogin }: Props) {
         <div className="relative z-10 flex-1 flex flex-col justify-center gap-0 py-5">
           <h1
             className="text-5xl leading-tight text-white mb-4 font-normal"
-            style={{ fontFamily: "'Playfair Display', serif", letterSpacing: '-0.5px' }}
+            style={{ fontFamily: 'var(--font-serif-alt)', letterSpacing: '-0.5px' }}
           >
             One login.<br />
-            <em style={{ color: 'rgba(160,220,120,1)' }}>Every retail tool</em><br />
+            <em style={{ color: 'var(--color-brand-accent)' }}>Every retail tool</em><br />
             you need.
           </h1>
 
@@ -69,7 +69,7 @@ export default function LoginScreen({ onLogin }: Props) {
               { icon: 'monitor', label: 'Device Independent' },
             ].map(({ label }) => (
               <div key={label} className="flex items-center gap-1.5 text-xs text-white/50">
-                <svg width="14" height="14" fill="none" stroke="rgba(160,220,120,.7)" strokeWidth="2" viewBox="0 0 24 24">
+                <svg width="14" height="14" fill="none" strokeWidth="2" viewBox="0 0 24 24" style={{ stroke: 'var(--color-brand-accent-dim)' }}>
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
                 {label}
@@ -87,7 +87,7 @@ export default function LoginScreen({ onLogin }: Props) {
           <div className="flex items-center gap-2.5">
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
-              style={{ background: 'linear-gradient(135deg, #6dbb5a, #4f7c3f)' }}
+              style={{ background: 'var(--gradient-avatar-primary)' }}
             >
               EF
             </div>
@@ -108,28 +108,28 @@ export default function LoginScreen({ onLogin }: Props) {
             <GinesysLogo />
           </div>
 
-          <h2 className="text-2xl font-semibold text-[#1a1a18] mb-1" style={{ letterSpacing: '-0.6px' }}>
+          <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-1" style={{ letterSpacing: '-0.6px' }}>
             Log in to Ginesys One
           </h2>
-          <p className="text-sm text-[#a8a8a5] mb-7">
+          <p className="text-sm text-[var(--color-text-placeholder)] mb-7">
             Welcome back. Sign in to access your apps.
           </p>
 
           {/* Email field */}
           <div className="relative mb-3.5">
             <input
-              className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[#e8e8e6] rounded-xl bg-[#f7f7f6] text-sm text-[#1a1a18] outline-none transition-all peer focus:border-[#4f7c3f] focus:bg-white focus:shadow-[0_0_0_3.5px_rgba(79,124,63,0.1)]"
+              className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-xl bg-[var(--color-bg-subtle)] text-sm text-[var(--color-text-primary)] outline-none transition-all peer focus:border-[var(--color-border-brand)] focus:bg-[var(--color-bg-surface)] focus:shadow-[var(--shadow-focus-brand)]"
               type="text"
               placeholder=" "
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
-            <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#a8a8a5] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[#4f7c3f] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[#4f7c3f]">
+            <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
               Enter Email
             </label>
             {email && (
               <button
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#a8a8a5] hover:text-[#6b6b68]"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]"
                 onClick={() => setEmail('')}
               >
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -142,17 +142,17 @@ export default function LoginScreen({ onLogin }: Props) {
           {/* Password field */}
           <div className="relative mb-2">
             <input
-              className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[#e8e8e6] rounded-xl bg-[#f7f7f6] text-sm text-[#1a1a18] outline-none transition-all peer focus:border-[#4f7c3f] focus:bg-white focus:shadow-[0_0_0_3.5px_rgba(79,124,63,0.1)]"
+              className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-xl bg-[var(--color-bg-subtle)] text-sm text-[var(--color-text-primary)] outline-none transition-all peer focus:border-[var(--color-border-brand)] focus:bg-[var(--color-bg-surface)] focus:shadow-[var(--shadow-focus-brand)]"
               type={showPassword ? 'text' : 'password'}
               placeholder=" "
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#a8a8a5] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[#4f7c3f] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[#4f7c3f]">
+            <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
               Enter Password
             </label>
             <button
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#a8a8a5] hover:text-[#6b6b68]"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]"
               onClick={() => setShowPassword(!showPassword)}
             >
               <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -167,21 +167,21 @@ export default function LoginScreen({ onLogin }: Props) {
           {/* Login button */}
           <button
             className="w-full h-[50px] rounded-xl text-white text-sm font-semibold mt-2 transition-all hover:-translate-y-px active:translate-y-0"
-            style={{ background: '#4f7c3f', letterSpacing: '0.02em' }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#1e3d16')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#4f7c3f')}
+            style={{ background: 'var(--color-brand-primary)', letterSpacing: '0.02em' }}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-brand-primary-hover)')}
+            onMouseLeave={e => (e.currentTarget.style.background = 'var(--color-brand-primary)')}
             onClick={onLogin}
           >
             Login
           </button>
 
-          <a href="#" className="block text-center mt-4 text-xs text-[#4f7c3f] hover:text-[#1e3d16] transition-colors">
+          <a href="#" className="block text-center mt-4 text-xs text-[var(--color-text-brand)] hover:text-[var(--color-brand-primary-hover)] transition-colors">
             Forgot password?
           </a>
 
           {/* Security note */}
-          <div className="mt-9 flex items-center gap-2 px-3.5 py-3 rounded-[9px] bg-[#f7f7f6] border border-[#e8e8e6] text-xs text-[#a8a8a5] leading-relaxed">
-            <svg className="shrink-0 text-[#4f7c3f]" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="mt-9 flex items-center gap-2 px-3.5 py-3 rounded-[9px] bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] text-xs text-[var(--color-text-tertiary)] leading-relaxed">
+            <svg className="shrink-0 text-[var(--color-brand-primary)]" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
             Your session is protected by enterprise SSO and optional two-factor authentication.

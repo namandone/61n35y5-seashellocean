@@ -145,19 +145,19 @@ const favorites = new Set(['Browntape', 'Ginesys ERP', 'Zwing POS'])
 
 const StatusBadge = ({ status }: { status: App['status'] }) => {
   if (status === 'expired') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[#fdf0f0] text-[#e05252]">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[var(--color-status-danger-bg)] text-[var(--color-status-danger-text)]">
       <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
       License Expired
     </span>
   )
   if (status === 'expiring') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[#fef5e3] text-[#c47d0e]">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]">
       <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
       Expires Soon
     </span>
   )
   return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[#eef4eb] text-[#4f7c3f]">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[var(--color-status-active-bg)] text-[var(--color-status-active-text)]">
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       Active
     </span>
@@ -190,19 +190,19 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
   ]
 
   return (
-    <div className="flex flex-col h-screen" style={{ background: 'linear-gradient(170deg, #eef6eb 0%, #f5f7f4 45%, #f7f7f6 100%)' }}>
+    <div className="flex flex-col h-screen" style={{ background: 'var(--gradient-bg-launcher)' }}>
 
       {/* ── Topbar ── */}
-      <div className="h-14 bg-white border-b border-[#e8e8e6] px-9 flex items-center gap-3.5 shrink-0 z-10 shadow-[0_1px_0_#e8e8e6]">
+      <div className="h-14 bg-white border-b border-[var(--color-border-default)] px-9 flex items-center gap-3.5 shrink-0 z-10 shadow-[0_1px_0_var(--color-border-default)]">
         <div className="flex items-center gap-2.5 cursor-pointer">
           <GinesysLogo />
-          <span className="text-sm font-semibold text-[#1a1a18]" style={{ letterSpacing: '-0.3px' }}>Ginesys One</span>
+          <span className="text-sm font-semibold text-[var(--color-text-primary)]" style={{ letterSpacing: '-0.3px' }}>Ginesys One</span>
         </div>
 
         <div className="ml-auto flex items-center gap-3">
           {/* Org pill */}
-          <div className="flex items-center gap-2 text-[12.5px] font-medium text-[#6b6b68] bg-[#f7f7f6] border border-[#e8e8e6] px-3 py-1.5 rounded-full">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[#a8a8a5]">
+          <div className="flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-text-secondary)] bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] px-3 py-1.5 rounded-full">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[var(--color-text-tertiary)]">
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="2" />
             </svg>
             Esther Fashions
@@ -212,7 +212,7 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
           <div className="relative">
             <div
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer"
-              style={{ background: 'linear-gradient(135deg, #6dbb5a, #4f7c3f)' }}
+              style={{ background: 'var(--gradient-avatar-primary)' }}
               onClick={() => setAvOpen(!avOpen)}
             >
               L
@@ -220,21 +220,21 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
 
             {/* Dropdown */}
             {avOpen && (
-              <div className="absolute top-[calc(100%+10px)] right-0 w-[230px] bg-white border border-[#e8e8e6] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.10)] z-50 overflow-hidden">
-                <div className="flex items-center gap-3 p-4 bg-[#eef4eb] border-b border-[rgba(79,124,63,0.12)]">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: 'linear-gradient(135deg, #6dbb5a, #4f7c3f)' }}>L</div>
+              <div className="absolute top-[calc(100%+10px)] right-0 w-[230px] bg-white border border-[var(--color-border-default)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.10)] z-50 overflow-hidden">
+                <div className="flex items-center gap-3 p-4 bg-[var(--color-bg-brand-subtle)] border-b border-[var(--color-border-brand-subtle)]">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: 'var(--gradient-avatar-primary)' }}>L</div>
                   <div>
-                    <div className="text-sm font-bold text-[#1a1a18]">Laksh Aeterna</div>
-                    <span className="text-xs font-bold bg-[#fef5e3] text-[#c47d0e] rounded-full px-2 py-0.5 mt-1 inline-block">Account Holder</span>
+                    <div className="text-sm font-bold text-[var(--color-text-primary)]">Laksh Aeterna</div>
+                    <span className="text-xs font-bold bg-[var(--color-role-holder-bg)] text-[var(--color-role-holder-text)] rounded-full px-2 py-0.5 mt-1 inline-block">Account Holder</span>
                   </div>
                 </div>
                 <div className="p-1.5">
-                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[#1a1a18] cursor-pointer hover:bg-[#f7f7f6]"
+                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[var(--color-text-primary)] cursor-pointer hover:bg-[var(--color-bg-subtle)]"
                     onClick={() => { setAvOpen(false); onGoToProfile() }}>
-                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-[#6b6b68]"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-[var(--color-text-secondary)]"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                     Account
                   </div>
-                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[#e05252] cursor-pointer hover:bg-[#fdf0f0]"
+                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[var(--color-text-danger)] cursor-pointer hover:bg-[var(--color-bg-danger)]"
                     onClick={() => { setAvOpen(false); setShowLogout(true) }}>
                     <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
                     Log out
@@ -248,8 +248,8 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
 
       {/* ── Body ── */}
       <div className="flex-1 overflow-y-auto flex flex-col items-center px-6 py-12">
-        <p className="text-xs font-medium text-[#a8a8a5] tracking-wide mb-1.5">Good morning, Laksh 👋</p>
-        <h1 className="text-3xl font-bold text-[#1a1a18] mb-8" style={{ letterSpacing: '-0.7px' }}>Where would you like to go?</h1>
+        <p className="text-xs font-medium text-[var(--color-text-tertiary)] tracking-wide mb-1.5">Good morning, Laksh 👋</p>
+        <h1 className="text-3xl font-bold text-[var(--color-text-primary)] mb-8" style={{ letterSpacing: '-0.7px' }}>Where would you like to go?</h1>
 
         {/* Category pills */}
         <div className="flex gap-1.5 mb-10">
@@ -259,8 +259,8 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
               onClick={() => setCategory(key)}
               className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 category === key
-                  ? 'bg-[#4f7c3f] text-white border-[#4f7c3f] font-semibold'
-                  : 'bg-white text-[#6b6b68] border-[#e8e8e6] hover:border-[#c0c0bc] hover:text-[#1a1a18]'
+                  ? 'bg-[var(--color-brand-primary)] text-white border-[var(--color-brand-primary)] font-semibold'
+                  : 'bg-white text-[var(--color-text-secondary)] border-[var(--color-border-default)] hover:border-[var(--color-text-disabled)] hover:text-[var(--color-text-primary)]'
               }`}
             >
               {label}
@@ -274,10 +274,10 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
             <div
               key={app.name}
               onClick={() => launch(app.name)}
-              className={`w-[224px] bg-white border border-[#e8e8e6] rounded-[18px] p-7 pt-7 pb-5 flex flex-col items-center relative overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 group ${
+              className={`w-[224px] bg-white border border-[var(--color-border-default)] rounded-[18px] p-7 pt-7 pb-5 flex flex-col items-center relative overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 group ${
                 app.status === 'expired'
                   ? 'opacity-75 cursor-not-allowed'
-                  : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] hover:border-[#d0d0cc]'
+                  : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] hover:border-[var(--color-border-hover)]'
               }`}
             >
               {/* Background glow */}
@@ -288,7 +288,7 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
 
               {/* Arrow on hover */}
               {app.status !== 'expired' && (
-                <div className="absolute top-3.5 right-3.5 w-6 h-6 rounded-lg bg-[#f7f7f6] border border-[#e8e8e6] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[#6b6b68]">
+                <div className="absolute top-3.5 right-3.5 w-6 h-6 rounded-lg bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-secondary)]">
                   <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
                 </div>
               )}
@@ -296,13 +296,13 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
               <div className="w-16 h-16 rounded-[18px] flex items-center justify-center mb-4 shrink-0 overflow-hidden">
                 {app.icon}
               </div>
-              <div className="text-sm font-bold text-[#1a1a18] mb-0.5 text-center" style={{ letterSpacing: '-0.25px' }}>{app.name}</div>
-              <div className="text-[11px] text-[#a8a8a5] font-medium text-center mb-3.5">{app.cat}</div>
-              <div className="text-[11.5px] text-[#6b6b68] text-center leading-relaxed mb-4">{app.desc}</div>
+              <div className="text-sm font-bold text-[var(--color-text-primary)] mb-0.5 text-center" style={{ letterSpacing: '-0.25px' }}>{app.name}</div>
+              <div className="text-[11px] text-[var(--color-text-tertiary)] font-medium text-center mb-3.5">{app.cat}</div>
+              <div className="text-[11.5px] text-[var(--color-text-secondary)] text-center leading-relaxed mb-4">{app.desc}</div>
               <div className="mt-auto flex items-center gap-1.5">
                 <StatusBadge status={app.status} />
                 {app.status === 'expired' && (
-                  <span className="text-[10.5px] font-bold text-[#c9402a] underline underline-offset-2 cursor-pointer">Renew</span>
+                  <span className="text-[10.5px] font-bold text-[var(--color-text-expired)] underline underline-offset-2 cursor-pointer">Renew</span>
                 )}
               </div>
             </div>
@@ -311,7 +311,7 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
       </div>
 
       {/* ── Launch Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[#1a1a18] text-white px-4 py-2.5 rounded-xl flex items-center gap-2.5 text-sm font-medium shadow-[0_8px_28px_rgba(0,0,0,0.18)] whitespace-nowrap z-[9999] transition-all duration-200 ${toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-xl flex items-center gap-2.5 text-sm font-medium shadow-[0_8px_28px_rgba(0,0,0,0.18)] whitespace-nowrap z-[9999] transition-all duration-200 ${toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0">
           <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         </div>
@@ -322,14 +322,14 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
       {showLogout && (
         <div className="fixed inset-0 z-[200] bg-black/35 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogout(false)}>
           <div className="bg-white rounded-[18px] p-8 pb-6 w-[340px] text-center shadow-[0_24px_60px_rgba(0,0,0,0.18)]" onClick={e => e.stopPropagation()}>
-            <div className="w-[52px] h-[52px] rounded-2xl bg-[#fdf0f0] flex items-center justify-center mx-auto mb-4 text-[#e05252]">
+            <div className="w-[52px] h-[52px] rounded-2xl bg-[var(--color-bg-danger)] flex items-center justify-center mx-auto mb-4 text-[var(--color-text-danger)]">
               <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             </div>
-            <div className="text-[17px] font-bold text-[#1a1a18] mb-2" style={{ letterSpacing: '-0.3px' }}>Log out of Ginesys One?</div>
-            <div className="text-sm text-[#6b6b68] leading-relaxed mb-6">You'll be returned to the login screen. Any unsaved changes will be lost.</div>
+            <div className="text-[17px] font-bold text-[var(--color-text-primary)] mb-2" style={{ letterSpacing: '-0.3px' }}>Log out of Ginesys One?</div>
+            <div className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-6">You'll be returned to the login screen. Any unsaved changes will be lost.</div>
             <div className="flex gap-2.5">
-              <button className="flex-1 h-10 rounded-xl bg-[#f7f7f6] border-[1.5px] border-[#e8e8e6] text-sm font-semibold text-[#1a1a18] cursor-pointer hover:border-[#c8c8c5] transition-colors" onClick={() => setShowLogout(false)}>Cancel</button>
-              <button className="flex-1 h-10 rounded-xl bg-[#e05252] border-[1.5px] border-[#e05252] text-sm font-semibold text-white cursor-pointer hover:bg-[#c94444] transition-colors" onClick={() => { setShowLogout(false); onLogout() }}>Log out</button>
+              <button className="flex-1 h-10 rounded-xl bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-default)] text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:border-[var(--color-border-strong)] transition-colors" onClick={() => setShowLogout(false)}>Cancel</button>
+              <button className="flex-1 h-10 rounded-xl bg-[var(--color-text-danger)] border-[1.5px] border-[var(--color-text-danger)] text-sm font-semibold text-white cursor-pointer hover:bg-[var(--color-border-danger-hover)] transition-colors" onClick={() => { setShowLogout(false); onLogout() }}>Log out</button>
             </div>
           </div>
         </div>
