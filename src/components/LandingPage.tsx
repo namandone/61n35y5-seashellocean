@@ -66,7 +66,7 @@ export default function LandingPage({ onLaunchSSO }: Props) {
   const core       = filtered.filter(i => i.section === 'core')
   const noResults  = filtered.length === 0
 
-  const SectionLabel = ({ label, count }: { label: string; count: number }) => (
+  const SectionLabel = ({ label }: { label: string }) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
       <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6b6b68' }}>
         {label}
