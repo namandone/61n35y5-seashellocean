@@ -1,73 +1,64 @@
-# React + TypeScript + Vite
+# Vision
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An internal design playground for sharing early-stage workflows, interaction concepts, and prototypes — before they become product.
 
-Currently, two official plugins are available:
+Live at: `https://YOUR-USERNAME.github.io/61n35y5-seashellocean/`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## What's inside
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Landing Page
+The entry point. Lists all available pages and prototypes with a live search bar. Organised into two sections — **Prototypes** and **Core**.
 
-## Expanding the ESLint configuration
+### Prototypes
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Page | Description | Status |
+|---|---|---|
+| SSO Launcher | Unified login, app launcher, and account management for a retail SaaS platform | Live |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Core
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Page | Description | Status |
+|---|---|---|
+| Design System | Component library, tokens, and usage guidelines for product surfaces | Coming soon |
+| Design Guidelines | Principles, patterns, and standards that guide design decisions across products | Coming soon |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## SSO Launcher — screens
+
+The SSO prototype covers three screens:
+
+- **Login** — Split-panel login with animated gradient, email/password fields, and a security note
+- **App Launcher** — Grid of platform apps with category filtering and licence status indicators
+- **Profile** — Three-tab account page covering user info, enterprise settings (domain policy, password policy), and team management
+
+---
+
+## Stack
+
+- React + TypeScript
+- Vite
+- Tailwind CSS v4
+
+## Running locally
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Deploying to GitHub Pages
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+Then push the `dist/` folder to the `gh-pages` branch, or use the GitHub Actions workflow if configured.
+
+---
+
+*Internal use only · 2026*
