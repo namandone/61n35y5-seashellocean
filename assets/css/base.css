@@ -1,0 +1,61 @@
+/* ═══════════════════════════════════════════════
+   BASE · CSS Custom Properties, Reset & Typography
+   assets/css/base.css
+   Link this in every app page.
+═══════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ── */
+:root {
+  --bg:           #f7f7f6;
+  --surface:      #ffffff;
+  --border:       #e8e8e6;
+  --border-soft:  #f0f0ee;
+
+  --text-1:       #1a1a18;
+  --text-2:       #6b6b68;
+  --text-3:       #a8a8a5;
+
+  --green:        #4f7c3f;
+  --green-mid:    #5a9445;
+  --green-light:  #eef4eb;
+  --green-dark:   #1e3d16;
+  --green-deep:   #142a0f;
+  --green-glow:   rgba(79, 124, 63, .15);
+
+  --amber:        #c47d0e;
+  --amber-light:  #fef5e3;
+
+  --red:          #e05252;
+  --red-light:    #fdf0f0;
+
+  --blue:         #3b6fd4;
+  --blue-light:   #eef2fb;
+
+  --indigo:       #5b5bd6;
+  --indigo-light: #ededfc;
+
+  /* Font aliases – reference these in font-family declarations */
+  --font-sans:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'DM Mono', 'Courier New', monospace;
+  --font-display: 'Playfair Display', Georgia, serif;
+}
+
+/* ── Base typography ── */
+html { font-size: 13px; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #ccc; }
