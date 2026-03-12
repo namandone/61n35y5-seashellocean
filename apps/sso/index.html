@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ginesys One · SSO Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/css/base.css">
+<link rel="stylesheet" href="../../assets/css/components.css">
+<script src="../../assets/js/nav.js" defer></script>
+<style>
+/* ═══════════════════════════════════════════════
+   SSO PROTOTYPE · App-specific styles only
+   Resets, tokens, and shared components are
+   provided by base.css and components.css
+═══════════════════════════════════════════════ */
+
+/* ── SCREEN SYSTEM ── */
+.screen { display: none; width: 100%; height: 100vh; }
+.screen.active { display: flex; }
+
+body { height: 100vh; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════
+   SCREEN 1 · LOGIN
+═══════════════════════════════════════════════ */
+#s-login { flex-direction: row; }
+
+.login-left {
+  width: 50%; background: var(--green-deep);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; padding: 48px 52px;
+}
+
+.login-left::before {
+  content: ''; position: absolute; inset: -20%; width: 140%; height: 140%;
+  background:
+    radial-gradient(ellipse 70% 55% at 25% 15%, rgba(90,148,69,.22) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 70% at 85% 75%, rgba(79,124,63,.16) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 45% at 55% 50%, rgba(30,61,22,.5)  0%, transparent 100%);
+  animation: gradientDrift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes gradientDrift {
+  0%   { transform: translate(0%,  0%)  scale(1);    }
+  33%  { transform: translate(3%,  -4%) scale(1.04); }
+  66%  { transform: translate(-4%, 3%)  scale(1.02); }
+  100% { transform: translate(2%,  5%)  scale(1.05); }
+}
+.login-left::after { display: none; }
+
+.app-ecosystem {
+  position: relative; z-index: 2; flex: 1;
+  display: flex; flex-direction: column; justify-content: center; padding: 20px 0;
+}
+.ecosystem-headline {
+  font-family: var(--font-display); font-size: 42px; line-height: 1.15;
+  color: white; letter-spacing: -.5px; margin-bottom: 18px; font-weight: 400;
+}
+.ecosystem-headline em { font-style: italic; color: rgba(160,220,120,1); }
+.ecosystem-sub {
+  font-size: 14px; color: rgba(255,255,255,.55); line-height: 1.65;
+  max-width: 380px; margin-bottom: 36px; font-weight: 300;
+}
+.login-testimonial {
+  position: relative; z-index: 2;
+  border-top: 1px solid rgba(255,255,255,.1); padding-top: 24px;
+}
+.testimonial-text {
+  font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.65;
+  font-style: italic; margin-bottom: 10px;
+}
+.testimonial-author  { display: flex; align-items: center; gap: 10px; }
+.testimonial-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, #6dbb5a, #4f7c3f);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 10px; font-weight: 700;
+}
+.testimonial-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.7); }
+.testimonial-role { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 1px; }
+
+/* Right form panel */
+.login-right {
+  width: 50%; flex-shrink: 0; background: var(--surface);
+  display: flex; align-items: center; justify-content: center; padding: 48px;
+}
+.login-form-wrap  { width: 100%; max-width: 380px; }
+.login-form-logo  { margin-bottom: 36px; }
+.login-form-title { font-size: 26px; font-weight: 600; letter-spacing: -.6px; color: var(--text-1); margin-bottom: 6px; }
+.login-form-sub   { font-size: 13px; color: var(--text-3); margin-bottom: 28px; }
+
+/* Floating-label field wrapper */
+.form-field { margin-bottom: 14px; position: relative; }
+
+/* Full-width login button */
+.btn-login {
+  width: 100%; height: 50px; border-radius: 11px;
+  background: var(--green); border: none; color: white;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: all .15s; margin-top: 8px; letter-spacing: .02em;
+}
+.btn-login:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,124,63,.3); }
+.btn-login:active { transform: none; }
+.forgot-link {
+  display: block; text-align: center; margin-top: 18px;
+  font-size: 12.5px; color: var(--green); text-decoration: none; transition: color .12s;
+}
+.forgot-link:hover { color: var(--green-dark); }
+.login-footer-note {
+  margin-top: 36px; display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px; border-radius: 9px;
+  background: var(--bg); border: 1px solid var(--border);
+  font-size: 11.5px; color: var(--text-3); line-height: 1.5;
+}
+.login-footer-note svg { flex-shrink: 0; color: var(--green); }
+
+/* ═══════════════════════════════════════════════
+   SCREEN 2 · APP LAUNCHER
+═══════════════════════════════════════════════ */
+#s-launcher {
+  flex-direction: column;
+  background: linear-gradient(170deg, #eef6eb 0%, #f5f7f4 45%, #f7f7f6 100%);
+}
+
+/* Topbar shadow specific to launcher */
+#s-launcher .topbar { box-shadow: 0 1px 0 var(--border); }
+
+.launcher-body {
+  flex: 1; overflow-y: scroll; scrollbar-gutter: stable;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 48px 24px;
+}
+.launcher-greeting {
+  font-size: 13px; font-weight: 500; color: var(--text-3);
+  letter-spacing: .02em; margin-bottom: 6px; text-align: center;
+}
+.launcher-headline {
+  font-size: 30px; font-weight: 700; letter-spacing: -.7px;
+  color: var(--text-1); margin-bottom: 32px; text-align: center;
+}
+
+/* Category pills */
+.category-pills { display: flex; gap: 6px; margin-bottom: 40px; }
+.cat-pill {
+  padding: 7px 18px; border-radius: 20px; cursor: pointer;
+  font-size: 12px; font-weight: 500;
+  border: 1.5px solid var(--border); color: var(--text-2); background: white;
+  transition: all .15s;
+}
+.cat-pill:hover  { border-color: #c0c0bc; color: var(--text-1); }
+.cat-pill.active { background: var(--green); color: white; border-color: var(--green); font-weight: 600; }
+
+/* App grid */
+.app-grid {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 16px; width: 100%; max-width: 1020px;
+}
+.app-card {
+  width: 224px; flex-shrink: 0;
+  background: white; border: 1px solid var(--border); border-radius: 18px;
+  padding: 28px 22px 20px;
+  display: flex; flex-direction: column; align-items: center;
+  cursor: pointer; transition: all .22s cubic-bezier(.25,.8,.25,1);
+  position: relative; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.app-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(0,0,0,.12); border-color: #d0d0cc; }
+.app-card.disabled { cursor: not-allowed; opacity: .75; }
+.app-card.disabled:hover { transform: none; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+
+.app-card-bg {
+  position: absolute; inset: 0; opacity: .055;
+  background: radial-gradient(ellipse at 50% -10%, currentColor 0%, transparent 65%);
+  pointer-events: none;
+}
+.app-card-icon {
+  width: 64px; height: 64px; border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px; flex-shrink: 0; overflow: hidden;
+}
+.app-card-icon svg { width: 64px; height: 64px; display: block; }
+.app-card-name { font-size: 14.5px; font-weight: 700; color: var(--text-1); margin-bottom: 3px; text-align: center; letter-spacing: -.25px; }
+.app-card-cat  { font-size: 11px; color: var(--text-3); font-weight: 500; text-align: center; margin-bottom: 14px; letter-spacing: .01em; }
+.app-card-desc { font-size: 11.5px; color: var(--text-2); text-align: center; line-height: 1.6; margin-bottom: 18px; }
+.app-card-status { margin-top: auto; }
+.app-card-arrow {
+  position: absolute; top: 14px; right: 14px;
+  width: 26px; height: 26px; border-radius: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(.8) translate(3px,-3px);
+  transition: opacity .18s, transform .18s;
+  pointer-events: none; color: var(--text-2);
+}
+.app-card:hover .app-card-arrow { opacity: 1; transform: scale(1) translate(0,0); }
+
+/* ═══════════════════════════════════════════════
+   SCREEN 3 · PROFILE
+═══════════════════════════════════════════════ */
+#s-profile { flex-direction: column; background: var(--bg); }
+
+.profile-tabs {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; flex-shrink: 0;
+}
+.p-tab {
+  padding: 14px 40px; font-size: 13.5px; font-weight: 500; cursor: pointer;
+  border-bottom: 2.5px solid transparent; color: var(--text-3);
+  transition: color .15s; letter-spacing: -.1px;
+}
+.p-tab:hover  { color: var(--text-2); }
+.p-tab.active { color: var(--green); border-bottom-color: var(--green); font-weight: 600; }
+
+.profile-body    { flex: 1; overflow-y: auto; background: var(--bg); }
+.profile-content { display: none; }
+.profile-content.active { display: block; }
+.profile-inner {
+  max-width: 860px; width: 100%; margin: 0 auto; padding: 40px;
+  display: flex; flex-direction: column; gap: 32px; box-sizing: border-box;
+}
+
+/* ── TAB A: Profile ── */
+.user-info-layout  { display: flex; gap: 32px; align-items: flex-start; min-width: 0; }
+.user-avatar-zone  { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.user-avatar-lg {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: linear-gradient(135deg, #6dbb5a, #4f7c3f);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 36px; font-weight: 700;
+  position: relative; cursor: pointer;
+}
+.user-avatar-lg:hover .avatar-edit { opacity: 1; }
+.avatar-edit {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s;
+}
+
+.info-section-title { font-size: 18px; font-weight: 700; letter-spacing: -.4px; margin-bottom: 20px; }
+
+.info-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 32px; min-width: 0; }
+.info-field { display: flex; flex-direction: column; gap: 4px; }
+.info-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.info-value { font-size: 13.5px; font-weight: 500; color: var(--text-1); line-height: 1.4; }
+.info-value.empty { color: var(--text-3); font-style: italic; }
+.info-value.mono  { font-family: var(--font-mono); font-size: 12.5px; }
+.info-actions { display: flex; gap: 10px; padding-top: 4px; }
+
+/* Profile-specific button sizing (taller than shared .btn) */
+.btn-profile {
+  height: 36px; padding: 0 18px; border-radius: 9px;
+  font-family: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px; transition: all .15s;
+}
+.btn-p-primary { background: var(--green); border: 1.5px solid var(--green); color: white; }
+.btn-p-primary:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,124,63,.3); }
+.btn-p-ghost  { background: transparent; border: 1.5px solid var(--border); color: var(--text-2); }
+.btn-p-ghost:hover { background: var(--bg); border-color: #c8c8c5; color: var(--text-1); }
+.btn-p-ghost:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+
+.role-lock-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--text-3); background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px 1px 4px;
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.is-editing .role-lock-badge { opacity: 1; }
+
+.twofa-section { display: flex; flex-direction: column; gap: 12px; }
+.twofa-title   { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
+.twofa-desc    { font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
+.twofa-status  {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: 9px;
+  background: var(--green-light); border: 1px solid rgba(79,124,63,.2);
+  font-size: 12.5px; font-weight: 600; color: var(--green); width: fit-content;
+}
+
+/* ── TAB B: Enterprise ── */
+.ent-info-layout { display: flex; gap: 32px; align-items: flex-start; min-width: 0; width: 100%; }
+.ent-logo {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: linear-gradient(135deg, #2d8fe8, #1a6fc4);
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 36px; font-weight: 700;
+  position: relative; cursor: pointer;
+}
+.ent-logo:hover .avatar-edit { opacity: 1; }
+
+.ent-fields { flex: 1; min-width: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 18px 32px; }
+.ent-field  { display: flex; flex-direction: column; gap: 4px; }
+.ent-label  { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+.ent-value  { font-size: 13px; font-weight: 500; color: var(--text-1); line-height: 1.4; }
+.ent-value.empty { color: var(--text-3); font-style: italic; font-weight: 400; }
+.ent-value.mono  { font-family: var(--font-mono); font-size: 12px; }
+
+/* Timezone picker */
+.tz-wrap { position: relative; }
+.tz-input {
+  width: 100%; height: 34px; padding: 0 32px 0 10px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: inherit; font-size: 13px; font-weight: 500; color: var(--text-1);
+  background: white; outline: none; cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tz-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(79,124,63,.09); }
+.tz-chevron { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-3); }
+.tz-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 50;
+  background: white; border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.1); overflow: hidden; display: none;
+}
+.tz-search { border-bottom: 1px solid var(--border-soft); }
+.tz-search input {
+  width: 100%; height: 36px; padding: 0 12px;
+  border: none; border-bottom: 1.5px solid transparent;
+  font-family: inherit; font-size: 12px; outline: none; background: transparent;
+  transition: border-color .15s;
+}
+.tz-search input:focus { border-bottom-color: var(--green); }
+.tz-list { max-height: 180px; overflow-y: auto; padding: 4px; }
+.tz-opt  { padding: 8px 10px; border-radius: 7px; font-size: 12.5px; cursor: pointer; color: var(--text-1); transition: background .1s; }
+.tz-opt:hover    { background: var(--bg); }
+.tz-opt.selected { font-weight: 600; color: var(--green); background: var(--green-light); }
+.tz-wrap.open .tz-dropdown { display: block; }
+
+/* Domain tag input */
+.domain-wrap {
+  min-height: 44px; padding: 6px 10px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  cursor: text; transition: border-color .15s; background: var(--surface);
+}
+.domain-wrap:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(79,124,63,.08); }
+.d-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--green-light); border: 1px solid rgba(79,124,63,.2);
+  color: var(--green); border-radius: 6px; padding: 3px 9px 3px 10px; font-size: 12px; font-weight: 500;
+}
+.d-tag button {
+  background: none; border: none; cursor: pointer; color: var(--green);
+  font-size: 14px; line-height: 1; padding: 0; opacity: .6; transition: opacity .1s;
+}
+.d-tag button:hover { opacity: 1; }
+.d-input {
+  flex: 1; min-width: 140px; border: none; background: transparent;
+  font-size: 12px; color: var(--text-1); outline: none; padding: 3px 4px;
+}
+.d-input::placeholder { font-family: var(--font-sans); color: var(--text-3); }
+
+/* Policy cards */
+.policy-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; width: 100%; }
+.policy-card-hd    { padding: 14px 18px; border-bottom: 1px solid var(--border-soft); }
+.policy-card-title { font-size: 16px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 4px; }
+.policy-card-desc  { font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
+.policy-card-body  { padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+.policy-field-label { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+
+/* Length stepper */
+.len-stepper { display: inline-flex; align-items: center; border: 1.5px solid var(--border); border-radius: 9px; overflow: hidden; }
+.len-stepper:focus-within { border-color: var(--green); }
+.step-b {
+  width: 36px; height: 38px; border: none; background: var(--bg);
+  font-size: 18px; cursor: pointer; color: var(--text-2); transition: all .1s;
+  display: flex; align-items: center; justify-content: center;
+}
+.step-b:hover { background: var(--green-light); color: var(--green); }
+.len-num {
+  width: 48px; text-align: center; border: none;
+  font-family: var(--font-mono); font-size: 16px; font-weight: 600;
+  background: var(--surface); color: var(--text-1); outline: none; padding: 0;
+}
+
+/* Character requirement pills */
+.char-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.char-pill {
+  padding: 7px 14px; border-radius: 9px; cursor: pointer;
+  border: 1.5px solid var(--border); font-size: 12px; font-weight: 500;
+  color: var(--text-2); background: var(--surface); transition: all .15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.char-pill:hover { border-color: #c8c8c5; color: var(--text-1); }
+.char-pill.on    { background: var(--indigo-light); border-color: rgba(91,91,214,.25); color: var(--indigo); }
+.char-check {
+  width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center; opacity: .5; flex-shrink: 0;
+}
+.char-pill.on .char-check { opacity: 1; background: var(--indigo); border-color: var(--indigo); }
+.char-code { font-family: var(--font-mono); font-size: 10px; opacity: .5; }
+
+/* 2FA toggle row */
+.twofa-toggle-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  border-radius: 10px; border: 1.5px solid var(--border); cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.twofa-toggle-row.on { border-color: rgba(91,91,214,.25); background: var(--indigo-light); }
+.tti-title { font-size: 12.5px; font-weight: 600; color: var(--text-1); transition: color .2s; }
+.twofa-toggle-row.on .tti-title { color: var(--indigo); }
+.tti-desc  { font-size: 11.5px; color: var(--text-2); margin-top: 2px; line-height: 1.5; }
+
+/* Policy footer */
+.policy-footer {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 18px; border-top: 1px solid var(--border-soft); background: var(--bg);
+  height: 0; overflow: hidden; opacity: 0;
+  transition: height .2s, opacity .2s, padding .2s;
+}
+.policy-footer.dirty,
+.policy-footer.saved  { height: 58px; opacity: 1; padding-top: 12px; padding-bottom: 12px; }
+.policy-saved-msg { display: none; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--green); }
+.policy-footer.saved .policy-saved-msg { display: flex; }
+
+/* ── TAB C: Team ── */
+.team-header      { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.team-count       { font-size: 20px; font-weight: 700; letter-spacing: -.5px; display: flex; align-items: center; gap: 10px; }
+.team-count-badge {
+  font-size: 11px; font-weight: 700; color: var(--text-2);
+  background: var(--border-soft); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2px 9px;
+}
+.team-actions { margin-left: auto; display: flex; gap: 10px; }
+.team-search {
+  display: flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 0 14px; height: 40px; background: var(--surface);
+  transition: border-color .15s; margin-bottom: 8px;
+}
+.team-search:focus-within { border-color: var(--green); }
+.team-search input { flex: 1; border: none; background: transparent; font-family: inherit; font-size: 13px; color: var(--text-1); outline: none; }
+.team-search input::placeholder { color: var(--text-3); }
+.team-search svg { color: var(--text-3); flex-shrink: 0; }
+.team-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; width: 100%; }
+.team-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-bottom: 1px solid var(--border-soft);
+  transition: background .1s; position: relative;
+}
+.team-row:last-child { border-bottom: none; }
+.team-row:hover { background: #fafaf9; }
+.team-row:hover .row-menu { opacity: 1; }
+.member-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.member-name     { font-size: 13px; font-weight: 600; color: var(--text-1); cursor: pointer; }
+.member-name:hover { text-decoration: underline; }
+.member-name-you { font-size: 11px; color: var(--text-3); font-weight: 400; }
+
+.row-menu { opacity: 0; transition: opacity .12s; position: relative; }
+.row-menu-btn {
+  width: 30px; height: 30px; border-radius: 7px; border: none; background: transparent;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--text-3); transition: all .12s;
+}
+.row-menu-btn:hover { background: var(--bg); color: var(--text-2); }
+.dropdown {
+  position: absolute; right: 0; top: 36px; z-index: 100;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  min-width: 160px; overflow: hidden; display: none;
+}
+.dropdown.open { display: block; }
+.dropdown-item {
+  padding: 10px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer;
+  color: var(--text-2); transition: background .1s; display: flex; align-items: center; gap: 8px;
+}
+.dropdown-item:hover        { background: var(--bg); color: var(--text-1); }
+.dropdown-item.danger:hover { background: var(--red-light); color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN 1 · LOGIN
+══════════════════════════════════ -->
+<div class="screen active" id="s-login">
+
+  <div class="login-left">
+    <div class="app-ecosystem">
+      <div class="ecosystem-headline">One login.<br><em>Every retail tool</em><br>you need.</div>
+      <div class="ecosystem-sub">Ginesys One connects and empowers your entire retail operation, from order management and ERP to point of sale, under a single unified identity.</div>
+      <div style="display:flex;gap:20px">
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:rgba(255,255,255,.5)">
+          <svg width="14" height="14" fill="none" stroke="rgba(160,220,120,.7)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>SSO &amp; 2FA
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:rgba(255,255,255,.5)">
+          <svg width="14" height="14" fill="none" stroke="rgba(160,220,120,.7)" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Team controls
+        </div>
+        <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:rgba(255,255,255,.5)">
+          <svg width="14" height="14" fill="none" stroke="rgba(160,220,120,.7)" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Device Independent
+        </div>
+      </div>
+    </div>
+    <div class="login-testimonial">
+      <div class="testimonial-text">"Ginesys One made managing our 60-store retail chain dramatically simpler. One login, one team, everything connected."</div>
+      <div class="testimonial-author">
+        <div class="testimonial-av">EF</div>
+        <div>
+          <div class="testimonial-name">Esther Fashions</div>
+          <div class="testimonial-role">60 stores across India · Ginesys customer since 2019</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-form-wrap">
+      <div class="login-form-logo">
+        <svg width="76" height="44" viewBox="0 0 173 100" fill="none"><defs><linearGradient id="g-login" x1="36.49" y1="13.73" x2="76.41" y2="69.5" gradientUnits="userSpaceOnUse"><stop offset=".16" stop-color="#4FCA43"/><stop offset=".88" stop-color="#415549"/></linearGradient></defs><path d="M9.5 50C9.5 28.1 27.2 10.4 49.1 10.4c11 0 19.2 4.2 25.5 11.2 6.2 7 10.6 16.6 14.3 27.6 3.6 10.8 7.7 19.6 13.3 25.8 5.4 6 12.3 9.5 21.7 9.5 18.2 0 33.1-14.1 34.4-32H123.9c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5H161c1.4 0 2.5 1.1 2.5 2.5 0 21.9-17.7 39.6-39.6 39.6-11 0-19.2-4.2-25.5-11.2-6.2-7-10.6-16.6-14.3-27.6C80.5 40 76.3 31.2 70.8 25c-5.4-6-12.3-9.5-21.7-9.5C30 15.5 14.6 31 14.6 50s15.4 34.5 34.5 34.5l.5-.004c11.3-.174 21.3-5.83 27.5-14.4l.08-.103c.836-1.052 2.36-1.274 3.46-.485 1.14.816 1.4 2.4.59 3.54l-.34.467C73.8 83.2 62.3 89.5 49.4 89.6L49.1 89.6C27.2 89.6 9.5 71.9 9.5 50z" fill="#4FCA43"/><path d="M123.9 10.4c13.1 0 24.6 6.3 31.9 16.1l.34.47.07.109c.73 1.131.45 2.645-.66 3.435-1.1.79-2.63.568-3.46-.484l-.08-.103-.3-.408C145.4 21 135.3 15.5 123.9 15.5c-11.6 0-21.8 5.7-28.1 14.4l-.08.104c-.836 1.052-2.36 1.274-3.46.485-1.14-.816-1.4-2.4-.59-3.54l.34-.467C99.3 16.7 110.9 10.4 123.9 10.4z" fill="#415549"/><path d="M49.1 10.4C27.2 10.4 9.5 28.1 9.5 50s17.7 39.6 39.6 39.6l.31-.001c12.9-.1 24.4-6.42 31.5-16.1l.34-.467c.82-1.14.55-2.724-.59-3.54-1.1-.79-2.624-.567-3.46.485l-.08.103C70.9 78.7 60.9 84.35 49.6 84.52L49.1 84.5C30 84.5 14.6 69 14.6 50s15.4-34.5 34.5-34.5V10.4z" fill="url(#g-login)"/></svg>
+      </div>
+      <div class="login-form-title">Log in to Ginesys One</div>
+      <div class="login-form-sub">Welcome back. Sign in to access your apps.</div>
+
+      <!-- Email — uses shared .field-input and .field-label from components.css -->
+      <div class="form-field">
+        <input class="field-input" type="text" id="emailInput" placeholder=" " />
+        <label class="field-label" for="emailInput">Enter Email</label>
+        <button class="field-action" onclick="document.getElementById('emailInput').value=''">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Password -->
+      <div class="form-field">
+        <input class="field-input" type="password" id="pwInput" placeholder=" " />
+        <label class="field-label" for="pwInput">Enter Password</label>
+        <button class="field-action" onclick="togglePw()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+
+      <button class="btn-login" id="loginBtn">Login</button>
+      <a href="#" class="forgot-link">Forgot password?</a>
+      <div class="login-footer-note">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Your session is protected by enterprise SSO and optional two-factor authentication.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 2 · APP LAUNCHER
+══════════════════════════════════ -->
+<div class="screen" id="s-launcher">
+
+  <!-- Shared .topbar from components.css -->
+  <div class="topbar">
+    <a class="topbar-brand" onclick="goTo('s-login')">
+      <svg width="44" height="25" viewBox="0 0 173 100" fill="none"><defs><linearGradient id="g-launcher" x1="36.49" y1="13.73" x2="76.41" y2="69.5" gradientUnits="userSpaceOnUse"><stop offset=".16" stop-color="#4FCA43"/><stop offset=".88" stop-color="#415549"/></linearGradient></defs><path d="M9.5 50C9.5 28.1 27.2 10.4 49.1 10.4c11 0 19.2 4.2 25.5 11.2 6.2 7 10.6 16.6 14.3 27.6 3.6 10.8 7.7 19.6 13.3 25.8 5.4 6 12.3 9.5 21.7 9.5 18.2 0 33.1-14.1 34.4-32H123.9c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5H161c1.4 0 2.5 1.1 2.5 2.5 0 21.9-17.7 39.6-39.6 39.6-11 0-19.2-4.2-25.5-11.2-6.2-7-10.6-16.6-14.3-27.6C80.5 40 76.3 31.2 70.8 25c-5.4-6-12.3-9.5-21.7-9.5C30 15.5 14.6 31 14.6 50s15.4 34.5 34.5 34.5l.5-.004c11.3-.174 21.3-5.83 27.5-14.4l.08-.103c.836-1.052 2.36-1.274 3.46-.485 1.14.816 1.4 2.4.59 3.54l-.34.467C73.8 83.2 62.3 89.5 49.4 89.6L49.1 89.6C27.2 89.6 9.5 71.9 9.5 50z" fill="#4FCA43"/><path d="M123.9 10.4c13.1 0 24.6 6.3 31.9 16.1l.34.47.07.109c.73 1.131.45 2.645-.66 3.435-1.1.79-2.63.568-3.46-.484l-.08-.103-.3-.408C145.4 21 135.3 15.5 123.9 15.5c-11.6 0-21.8 5.7-28.1 14.4l-.08.104c-.836 1.052-2.36 1.274-3.46.485-1.14-.816-1.4-2.4-.59-3.54l.34-.467C99.3 16.7 110.9 10.4 123.9 10.4z" fill="#415549"/><path d="M49.1 10.4C27.2 10.4 9.5 28.1 9.5 50s17.7 39.6 39.6 39.6l.31-.001c12.9-.1 24.4-6.42 31.5-16.1l.34-.467c.82-1.14.55-2.724-.59-3.54-1.1-.79-2.624-.567-3.46.485l-.08.103C70.9 78.7 60.9 84.35 49.6 84.52L49.1 84.5C30 84.5 14.6 69 14.6 50s15.4-34.5 34.5-34.5V10.4z" fill="url(#g-launcher)"/></svg>
+      <span class="topbar-brand-name">Ginesys One</span>
+    </a>
+    <div class="topbar-right">
+      <div class="topbar-org">
+        <div class="topbar-org-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/></svg></div>
+        Esther Fashions
+      </div>
+      <!-- Shared .av-wrap / .av-dropdown from components.css -->
+      <div class="av-wrap" id="avWrapLauncher" onclick="toggleAvDropdown(event,'avDropdownLauncher')">
+        <div class="user-av">L</div>
+        <div class="av-dropdown" id="avDropdownLauncher">
+          <div class="av-dropdown-header">
+            <div class="av-dropdown-avatar">L</div>
+            <div>
+              <div class="av-dropdown-name">Laksh Aeterna</div>
+              <span class="av-dropdown-role">Account Holder</span>
+            </div>
+          </div>
+          <div class="av-dropdown-menu">
+            <div class="av-dropdown-item" onclick="closeAllAvDropdowns(); goTo('s-profile')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account
+            </div>
+            <div class="av-dropdown-item av-dropdown-item--danger" onclick="closeAllAvDropdowns(); showLogoutModal()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="launcher-body">
+    <div class="launcher-greeting">Good morning, Laksh 👋</div>
+    <div class="launcher-headline">Where would you like to go?</div>
+    <div class="category-pills">
+      <div class="cat-pill active" onclick="filterApps('favorites',this)">⭐ Favorites</div>
+      <div class="cat-pill" onclick="filterApps('all',this)">All Apps</div>
+      <div class="cat-pill" onclick="filterApps('core',this)">Core Apps</div>
+      <div class="cat-pill" onclick="filterApps('common',this)">Common Services</div>
+    </div>
+
+    <div class="app-grid">
+
+      <!-- Browntape (expired) -->
+      <div class="app-card disabled" data-category="core" data-name="Browntape" style="color:#c9402a">
+        <div class="app-card-bg"></div>
+        <div class="app-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><g clip-path="url(#c-bt)"><rect width="40" height="40" rx="20" fill="#BF1A1A"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.478 12.285c.061-.07.162-.164.318-.276.393-.285 1.02-.608 1.857-.944 1.664-.668 4.039-1.336 6.726-1.836 2.687-.5 5.143-.732 6.936-.708.902.012 1.603.088 2.072.212.186.049.314.1.396.143-.061.07-.162.163-.318.276-.393.284-1.02.608-1.857.944-1.664.667-4.039 1.335-6.726 1.836a42.6 42.6 0 01-1.831.23c-.09-.504-.238-.926-.44-1.257-.27-.441-.679-.776-1.197-.809-.517-.032-.948.249-1.236.62-.289.372-.476.877-.548 1.457-.013.1-.033.233-.06.397-.778.056-1.492.08-2.124.07-.902-.012-1.603-.088-2.072-.212a2.32 2.32 0 01-.396-.143zm6.567-.728c.099.161.199.415.269.783-.327.042-.647.08-.96.114.006-.045.011-.087.015-.127.053-.42.178-.696.295-.847.154-.198.267-.108.381.077zM15.715 13.77a1.3 1.3 0 01-.116-.001c-.98.082-1.88.119-2.67.108-.886-.012-1.662-.082-2.26-.225l1.385 7.435c.138.134.349.204.526.265.48.165 1.193.298 2.1.37 1.807.142 4.274.032 6.942-.465 2.668-.498 5.009-1.283 6.643-2.067.821-.393 1.438-.774 1.827-1.101.143-.12.315-.262.395-.437L29.102 10.232c-.507.349-1.205.694-2.028 1.024-1.761.707-4.22 1.394-6.962 1.904a67.9 67.9 0 01-4.397.61zM12.187 9.905c1.761-.707 4.22-1.394 6.962-1.905 2.743-.51 5.284-.754 7.182-.729.943.013 1.761.092 2.374.253.305.08.595.19.83.347.18.12.36.291.465.524l1.724 9.088c.065.35-.059.666-.208.902-.152.24-.371.467-.62.671-.501.421-1.222.855-2.091 1.272-1.745.837-4.192 1.653-6.954 2.167a38.6 38.6 0 01-3.82.5c.01.43.022.855.032 1.272a3.54 3.54 0 011.195-.33c.938-.034 1.787.49 2.155 1.35.336-.232.705-.375 1.089-.418.779-.089 1.515.245 2.022.867.22.27.395.587.518.946.3-.172.622-.262.96-.24.714.045 1.211.569 1.471 1.192.501 1.197.344 3.135-.786 5.304.338 1.795.14 3.607-.138 4.966a17.3 17.3 0 01-.363 1.358c-.15.472-.361 1.308-1.05 1.032-.345-.138-.463-.517-.335-.847.067-.175.374-1.014.611-2.171.188-.92.328-2.02.282-3.15-.699.764-1.514 1.297-2.27 1.476-.588.139-1.26.081-1.732-.431a2.36 2.36 0 01-.398-.756 14.5 14.5 0 01-.481.265c.172.667.217 1.495.161 2.499a.75.75 0 01-1.59-.09c.1-1.779-.172-2.537-.502-2.884-.323-.338-.862-.456-1.873-.456a.75.75 0 01-.668-1.086l.001-.002c.374-.42.801-.792 1.239-1.142.816-.653 2.046-1.493 3.722-2.267.393-.181.667-.367.213-.624-.627-.354-2.097-.577-4.259.037l-.013.004c-2.454.705-4.427 1.997-5.276 2.682.049 3.593.99 6.821 1.454 7.98.128.32-.028.684-.348.812-.32.128-.684-.028-.812-.348-.524-1.31-1.544-4.838-1.545-8.729-.003-2.906.562-5.846 1.051-8.7a10.6 10.6 0 01-1.602-.398c-.308-.106-.594-.238-.822-.408-.224-.167-.454-.417-.52-.767L9.169 12.274c.014-.255.12-.48.244-.656.163-.231.394-.438.65-.622.513-.371 1.248-.74 2.124-1.09zm11.161 23.877c-.04.531.077.755.146.83.054.057.188.14.525.06.699-.166 1.733-.946 2.428-2.214l.003-.005c1.128-2.074 1.145-3.673.834-4.418-.261-.624-.691-.43-1.065.009-.034 2.22-1.248 4.31-2.876 5.738zm-1.722-6.32c-.668-.016-1.424.056-2.25.235V25.999c0-.562.66-.89 1.147-.907.807-.03 1.103.7 1.103 1.406v1.963zm2.19.507c-.263-.149-.579-.269-.94-.352 0-.739.055-1.49.988-1.597.313-.035.644.089.91.416 2.061 2.531-1.303 6.052-3.348 7.455-.368-.467-.9-.755-1.475-.887.743-.606 1.918-1.427 3.561-2.185.617-.286 1.146-.74 1.212-1.384.07-.673-.395-1.174-.909-1.466zm-6.56 3.837c.046 1.866.085 3.651.113 5.039-1.837.587-3.393 1.455-4.438 2.163.138-1.924.528-4.552.988-7.233.965.085 2.095.1 3.337.031z" fill="white"/></g><defs><clipPath id="c-bt"><rect width="40" height="40" rx="20" fill="white"/></clipPath></defs></svg>
+        </div>
+        <div class="app-card-name">Browntape</div>
+        <div class="app-card-cat">Order Management</div>
+        <div class="app-card-desc">Manage omnichannel orders, batches, and shipments across all sales channels.</div>
+        <div class="app-card-status">
+          <!-- Shared .badge classes from components.css -->
+          <span class="badge badge--expired">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            License Expired
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:3px;margin-left:6px;font-size:10.5px;font-weight:700;color:#c9402a;text-decoration:underline;text-underline-offset:2px;cursor:pointer">Renew</span>
+        </div>
+      </div>
+
+      <!-- Ginesys ERP -->
+      <div class="app-card" data-category="core" data-name="Ginesys ERP" style="color:var(--green)" onclick="showLaunchToast('Ginesys ERP')">
+        <div class="app-card-bg"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><g clip-path="url(#c-erp)"><rect width="40" height="40" fill="#4FCA43"/><path fill-rule="evenodd" clip-rule="evenodd" d="M20.066 27.381c5.766 0 10.44-4.674 10.44-10.44 0-2.712-1.033-5.182-2.728-7.038 1.326-.703 2.143-2.173 2.223-2.93.028-.26-.181-.472-.444-.472H20.066c-5.766 0-10.44 4.674-10.44 10.44s4.675 10.44 10.44 10.44zm-6.644-10.44c0-3.67 2.974-6.644 6.644-6.644 3.67 0 6.644 2.975 6.644 6.644 0 3.67-2.975 6.644-6.644 6.644-3.67 0-6.644-2.975-6.644-6.644zm16.215 14.724c.439-.286.53-.882.221-1.305l-1.119-1.534c-.31-.423-.902-.513-1.346-.233-2.122 1.337-4.634 2.111-7.328 2.111-2.693 0-5.206-.774-7.328-2.111-.444-.28-1.036-.19-1.346.233l-1.119 1.534c-.31.423-.218 1.019.221 1.305 2.753 1.793 6.04 2.835 9.571 2.835 3.53 0 6.817-1.042 9.57-2.835z" fill="white"/></g><defs><clipPath id="c-erp"><rect width="40" height="40" rx="20" fill="white"/></clipPath></defs></svg>
+        </div>
+        <div class="app-card-name">Ginesys ERP</div>
+        <div class="app-card-cat">Back Office ERP</div>
+        <div class="app-card-desc">Full ERP suite for inventory, production, finance, procurement, and sales.</div>
+        <div class="app-card-status">
+          <span class="badge badge--active"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Active</span>
+        </div>
+      </div>
+
+      <!-- EaseMyGST -->
+      <div class="app-card" data-category="core" data-name="EaseMyGST" style="color:var(--blue)" onclick="showLaunchToast('EaseMyGST')">
+        <div class="app-card-bg"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><g clip-path="url(#c-gst)"><rect width="40" height="40" fill="#448AAD"/><path fill-rule="evenodd" clip-rule="evenodd" d="M20.869 5.572a3.178 3.178 0 010 4.52L13.481 17.48a1.567 1.567 0 000 2.26 1.567 1.567 0 002.26 0l3.564-3.564a3.178 3.178 0 014.52 0 3.178 3.178 0 010 4.52L14.61 29.909l-8.518-8.518a5.25 5.25 0 010-7.559L16.35 5.572a3.178 3.178 0 014.52 0z" fill="white"/><path fill-rule="evenodd" clip-rule="evenodd" d="M34.428 19.131a3.178 3.178 0 010 4.52L24.172 33.907a5.25 5.25 0 01-7.563 0l-4.867-4.867a1.567 1.567 0 010-2.217l1.738-1.738a1.567 1.567 0 012.217 0l2.434 2.434a1.567 1.567 0 002.217 0l7.822-7.822a3.178 3.178 0 014.258.434z" fill="#5FFFE4"/></g><defs><clipPath id="c-gst"><rect width="40" height="40" rx="20" fill="white"/></clipPath></defs></svg>
+        </div>
+        <div class="app-card-name">EaseMyGST</div>
+        <div class="app-card-cat">GST Compliance</div>
+        <div class="app-card-desc">Automated GST filing, reconciliation, and compliance reporting for India.</div>
+        <div class="app-card-status">
+          <span class="badge badge--expiring">
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Expires Soon
+          </span>
+        </div>
+      </div>
+
+      <!-- Zwing POS -->
+      <div class="app-card" data-category="core" data-name="Zwing POS" style="color:var(--amber)" onclick="showLaunchToast('Zwing POS')">
+        <div class="app-card-bg"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><g clip-path="url(#c-zwing)"><path d="M20 40c11.046 0 20-8.954 20-20S31.046 0 20 0 0 8.954 0 20s8.954 20 20 20z" fill="#FFCC00"/><path d="M13.207 8.302h18.114l-7.17 10.943V10.194L11.887 28.68H8.679l9.057-13.585H8.679l4.528-6.793z" fill="white"/><path d="M20.755 37.736L31.32 21.887h-8.302v-7.925L13.207 28.68h7.547v9.056z" fill="white"/></g><defs><clipPath id="c-zwing"><rect width="40" height="40" rx="20" fill="white"/></clipPath></defs></svg>
+        </div>
+        <div class="app-card-name">Zwing</div>
+        <div class="app-card-cat">Cloud POS</div>
+        <div class="app-card-desc">Modern cloud point of sale for retail stores with offline capability.</div>
+        <div class="app-card-status">
+          <span class="badge badge--active"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Active</span>
+        </div>
+      </div>
+
+      <!-- CRM -->
+      <div class="app-card" data-category="common" data-name="CRM" onclick="showLaunchToast('CRM')">
+        <div class="app-card-bg" style="background:radial-gradient(ellipse at 50% -10%,#7c4dcc 0%,transparent 65%)"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="32" fill="#EDE7F6"/><path d="M32 31a7 7 0 100-14 7 7 0 000 14z" fill="#7C4DCC"/><path d="M19 46c0-7.18 5.82-10 13-10s13 2.82 13 10" stroke="#7C4DCC" stroke-width="2.5" stroke-linecap="round"/><path d="M41 27l1.5 1.5 4-4" stroke="#7C4DCC" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="app-card-name">CRM</div>
+        <div class="app-card-cat">Customer Relationship</div>
+        <div class="app-card-desc">Track leads, manage customer lifecycle, and grow retail relationships.</div>
+        <div class="app-card-status"><span class="badge badge--active"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Active</span></div>
+      </div>
+
+      <!-- Gift Vouchers -->
+      <div class="app-card" data-category="common" data-name="Gift Vouchers" onclick="showLaunchToast('Gift Vouchers')">
+        <div class="app-card-bg" style="background:radial-gradient(ellipse at 50% -10%,#e91e8c 0%,transparent 65%)"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="32" fill="#FCE4EC"/><rect x="17" y="30" width="30" height="20" rx="3" fill="#E91E8C"/><rect x="17" y="24" width="30" height="8" rx="3" fill="#C2185B"/><line x1="32" y1="24" x2="32" y2="50" stroke="#FCE4EC" stroke-width="2"/><path d="M32 24c0 0-3.5-5 0-7s3.5 5 0 7z" fill="#FCE4EC"/><path d="M32 24c0 0 3.5-5 0-7s-3.5 5 0 7z" fill="#F48FB1"/></svg>
+        </div>
+        <div class="app-card-name">Gift Vouchers</div>
+        <div class="app-card-cat">Promotions &amp; Rewards</div>
+        <div class="app-card-desc">Issue, track, and redeem gift vouchers and promotional codes in-store.</div>
+        <div class="app-card-status"><span class="badge badge--active"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Active</span></div>
+      </div>
+
+      <!-- Wallet Service -->
+      <div class="app-card" data-category="common" data-name="Wallet Service" onclick="showLaunchToast('Wallet Service')">
+        <div class="app-card-bg" style="background:radial-gradient(ellipse at 50% -10%,#00897B 0%,transparent 65%)"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="32" fill="#E0F2F1"/><rect x="16" y="24" width="32" height="22" rx="4" fill="#00897B"/><rect x="16" y="29" width="32" height="7" fill="#00695C"/><circle cx="42" cy="32" r="3.5" fill="#80CBC4"/><rect x="20" y="39" width="9" height="3" rx="1.5" fill="#80CBC4"/></svg>
+        </div>
+        <div class="app-card-name">Wallet Service</div>
+        <div class="app-card-cat">Digital Wallet &amp; Credits</div>
+        <div class="app-card-desc">Manage customer wallet balances, loyalty credits, and cashback programs.</div>
+        <div class="app-card-status"><span class="badge badge--active"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Active</span></div>
+      </div>
+
+      <!-- Connect -->
+      <div class="app-card" data-category="common" data-name="Connect" onclick="showLaunchToast('Connect')">
+        <div class="app-card-bg" style="background:radial-gradient(ellipse at 50% -10%,#E65100 0%,transparent 65%)"></div>
+        <div class="app-card-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div class="app-card-icon">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="32" fill="#FBE9E7"/><circle cx="32" cy="32" r="5" fill="#E65100"/><circle cx="17" cy="23" r="3.5" fill="#FF8A65"/><circle cx="47" cy="23" r="3.5" fill="#FF8A65"/><circle cx="17" cy="41" r="3.5" fill="#FF8A65"/><circle cx="47" cy="41" r="3.5" fill="#FF8A65"/><line x1="20.5" y1="25" x2="28" y2="29.5" stroke="#E65100" stroke-width="2" stroke-linecap="round"/><line x1="43.5" y1="25" x2="36" y2="29.5" stroke="#E65100" stroke-width="2" stroke-linecap="round"/><line x1="20.5" y1="39" x2="28" y2="34.5" stroke="#E65100" stroke-width="2" stroke-linecap="round"/><line x1="43.5" y1="39" x2="36" y2="34.5" stroke="#E65100" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="app-card-name">Connect</div>
+        <div class="app-card-cat">Data Integration Platform</div>
+        <div class="app-card-desc">Integrate and sync data across your retail stack with no-code pipelines.</div>
+        <div class="app-card-status"><span class="badge badge--active"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Active</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 3 · PROFILE
+══════════════════════════════════ -->
+<div class="screen" id="s-profile">
+  <div style="display:flex;flex-direction:column;width:100%;height:100vh">
+
+    <!-- Shared .topbar from components.css -->
+    <div class="topbar">
+      <div class="topbar-brand">
+        <svg width="44" height="25" viewBox="0 0 173 100" fill="none"><defs><linearGradient id="g-profile" x1="36.49" y1="13.73" x2="76.41" y2="69.5" gradientUnits="userSpaceOnUse"><stop offset=".16" stop-color="#4FCA43"/><stop offset=".88" stop-color="#415549"/></linearGradient></defs><path d="M9.5 50C9.5 28.1 27.2 10.4 49.1 10.4c11 0 19.2 4.2 25.5 11.2 6.2 7 10.6 16.6 14.3 27.6 3.6 10.8 7.7 19.6 13.3 25.8 5.4 6 12.3 9.5 21.7 9.5 18.2 0 33.1-14.1 34.4-32H123.9c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5H161c1.4 0 2.5 1.1 2.5 2.5 0 21.9-17.7 39.6-39.6 39.6-11 0-19.2-4.2-25.5-11.2-6.2-7-10.6-16.6-14.3-27.6C80.5 40 76.3 31.2 70.8 25c-5.4-6-12.3-9.5-21.7-9.5C30 15.5 14.6 31 14.6 50s15.4 34.5 34.5 34.5l.5-.004c11.3-.174 21.3-5.83 27.5-14.4l.08-.103c.836-1.052 2.36-1.274 3.46-.485 1.14.816 1.4 2.4.59 3.54l-.34.467C73.8 83.2 62.3 89.5 49.4 89.6L49.1 89.6C27.2 89.6 9.5 71.9 9.5 50z" fill="#4FCA43"/><path d="M123.9 10.4c13.1 0 24.6 6.3 31.9 16.1l.34.47.07.109c.73 1.131.45 2.645-.66 3.435-1.1.79-2.63.568-3.46-.484l-.08-.103-.3-.408C145.4 21 135.3 15.5 123.9 15.5c-11.6 0-21.8 5.7-28.1 14.4l-.08.104c-.836 1.052-2.36 1.274-3.46.485-1.14-.816-1.4-2.4-.59-3.54l.34-.467C99.3 16.7 110.9 10.4 123.9 10.4z" fill="#415549"/><path d="M49.1 10.4C27.2 10.4 9.5 28.1 9.5 50s17.7 39.6 39.6 39.6l.31-.001c12.9-.1 24.4-6.42 31.5-16.1l.34-.467c.82-1.14.55-2.724-.59-3.54-1.1-.79-2.624-.567-3.46.485l-.08.103C70.9 78.7 60.9 84.35 49.6 84.52L49.1 84.5C30 84.5 14.6 69 14.6 50s15.4-34.5 34.5-34.5V10.4z" fill="url(#g-profile)"/></svg>
+        <span class="topbar-brand-name">Ginesys One</span>
+      </div>
+      <a class="topbar-back" onclick="goTo('s-launcher')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Apps
+      </a>
+      <div class="topbar-right">
+        <div class="topbar-org">
+          <div class="topbar-org-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/></svg></div>
+          Esther Fashions
+        </div>
+        <div class="av-wrap" id="avWrapProfile" onclick="toggleAvDropdown(event,'avDropdownProfile')">
+          <div class="user-av">L</div>
+          <div class="av-dropdown" id="avDropdownProfile">
+            <div class="av-dropdown-header">
+              <div class="av-dropdown-avatar">L</div>
+              <div>
+                <div class="av-dropdown-name">Laksh Aeterna</div>
+                <span class="av-dropdown-role">Account Holder</span>
+              </div>
+            </div>
+            <div class="av-dropdown-menu">
+              <div class="av-dropdown-item" onclick="closeAllAvDropdowns(); goTo('s-launcher')">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>All Apps
+              </div>
+              <div class="av-dropdown-item av-dropdown-item--danger" onclick="closeAllAvDropdowns(); showLogoutModal()">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-tabs">
+      <div class="p-tab active" onclick="switchProfileTab(0,this)">Profile</div>
+      <div class="p-tab" onclick="switchProfileTab(1,this)">Enterprise</div>
+      <div class="p-tab" onclick="switchProfileTab(2,this)">Team</div>
+    </div>
+
+    <div class="profile-body">
+
+      <!-- TAB 0 · Profile -->
+      <div class="profile-content active" id="pt-profile">
+        <div class="profile-inner">
+          <div class="user-info-layout">
+            <div class="user-avatar-zone">
+              <div class="user-avatar-lg">L
+                <div class="avatar-edit"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+              </div>
+              <span style="font-size:10px;color:var(--text-3);text-align:center">Change photo</span>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div class="info-section-title">User Information</div>
+              <div class="info-grid" id="userInfoGrid" style="margin-bottom:20px">
+                <div class="info-field">
+                  <div class="info-label">Name</div>
+                  <div class="info-value info-display" id="disp-name">Laksh Aeterna</div>
+                  <input class="input-sm" id="inp-name" value="Laksh Aeterna" style="display:none" />
+                </div>
+                <div class="info-field">
+                  <div class="info-label" style="display:flex;align-items:center;gap:5px">
+                    Role
+                    <span class="role-lock-badge" id="roleLockBadge">
+                      <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                      Ginesys-assigned
+                    </span>
+                  </div>
+                  <div class="info-value" id="disp-role">Account Holder</div>
+                </div>
+                <div class="info-field">
+                  <div class="info-label">Email</div>
+                  <div class="info-value info-display" id="disp-email">leclerc&#64;scuderia.in</div>
+                  <input class="input-sm" id="inp-email" value="leclerc@scuderia.in" style="display:none" />
+                </div>
+                <div class="info-field">
+                  <div class="info-label">Phone</div>
+                  <div class="info-value info-display" id="disp-phone">(+91) 94500 94500</div>
+                  <input class="input-sm" id="inp-phone" value="(+91) 94500 94500" style="display:none" />
+                </div>
+              </div>
+              <div class="info-actions">
+                <div id="actionsView" style="display:flex;gap:10px;align-items:center">
+                  <button class="btn-profile btn-p-primary" onclick="startEditInfo()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Info
+                  </button>
+                  <button class="btn-profile btn-p-ghost" id="changePwBtn">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Change Password
+                  </button>
+                </div>
+                <div id="actionsEdit" style="display:none;gap:10px;align-items:center">
+                  <button class="btn-profile btn-p-primary" onclick="saveInfo()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save Changes
+                  </button>
+                  <button class="btn-profile btn-p-ghost" onclick="discardInfo()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Discard
+                  </button>
+                </div>
+              </div>
+              <span id="infoSavedMsg" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--green);margin-top:10px">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Profile updated
+              </span>
+            </div>
+          </div>
+
+          <!-- Shared .divider from components.css -->
+          <div class="divider"></div>
+
+          <div class="twofa-section">
+            <div class="twofa-title">Two-factor authentication</div>
+            <div class="twofa-desc">Require an additional security code while logging into the current Enterprise. Adds a second layer of protection beyond your password.</div>
+            <div class="twofa-status">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              Active for authenticator app
+            </div>
+            <div>
+              <button class="btn-profile btn-p-primary">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Configure
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 1 · Enterprise -->
+      <div class="profile-content" id="pt-enterprise">
+        <div class="profile-inner">
+          <div class="ent-info-layout">
+            <div class="user-avatar-zone">
+              <div class="ent-logo">E
+                <div class="avatar-edit"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+              </div>
+              <span style="font-size:10px;color:var(--text-3);text-align:center">Change logo</span>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div class="info-section-title">Enterprise Information</div>
+              <div class="ent-fields" style="margin-bottom:20px">
+                <div class="ent-field">
+                  <div class="ent-label">Trade Name</div>
+                  <div class="ent-value info-display" id="edisp-trade">Esther Fashions</div>
+                  <input class="input-sm" id="einp-trade" value="Esther Fashions" style="display:none" />
+                </div>
+                <div class="ent-field">
+                  <div class="ent-label">Legal Name</div>
+                  <div class="ent-value info-display" id="edisp-legal">Esther Fashions Private Limited</div>
+                  <input class="input-sm" id="einp-legal" value="Esther Fashions Private Limited" style="display:none" />
+                </div>
+                <div class="ent-field">
+                  <div class="ent-label">Website</div>
+                  <div class="ent-value info-display empty" id="edisp-website">Not specified</div>
+                  <input class="input-sm" id="einp-website" placeholder="https://..." style="display:none" />
+                </div>
+                <div class="ent-field">
+                  <div class="ent-label">Email</div>
+                  <div class="ent-value info-display" id="edisp-email">admin&#64;estherretail.in</div>
+                  <input class="input-sm" id="einp-email" value="admin@estherretail.in" style="display:none" />
+                </div>
+                <div class="ent-field">
+                  <div class="ent-label">PAN</div>
+                  <div class="ent-value info-display empty" id="edisp-pan">Not specified</div>
+                  <input class="input-sm" id="einp-pan" placeholder="ABCDE1234F" style="display:none;text-transform:uppercase" />
+                </div>
+                <div class="ent-field">
+                  <div class="ent-label">CIN</div>
+                  <div class="ent-value info-display empty" id="edisp-cin">Not specified</div>
+                  <input class="input-sm" id="einp-cin" placeholder="U12345AB2000PTC123456" style="display:none;text-transform:uppercase" />
+                </div>
+                <div class="ent-field" style="grid-column:1/-1">
+                  <div class="ent-label">Timezone</div>
+                  <div class="ent-value info-display" id="edisp-tz">GMT +5:30 — India Standard Time</div>
+                  <div class="tz-wrap" id="tzWrap" style="display:none">
+                    <input class="tz-input" id="tzDisplay" readonly value="GMT +5:30 — India Standard Time" onclick="toggleTzDropdown()" />
+                    <svg class="tz-chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                    <div class="tz-dropdown" id="tzDropdown">
+                      <div class="tz-search"><input type="text" placeholder="Search timezone…" oninput="filterTz(this.value)" id="tzSearch" /></div>
+                      <div class="tz-list" id="tzList"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="entInfoActions">
+                <div id="entActionsView" style="display:flex;gap:10px">
+                  <button class="btn-profile btn-p-primary" onclick="startEditEntInfo()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Info
+                  </button>
+                </div>
+                <div id="entActionsEdit" style="display:none;gap:10px">
+                  <button class="btn-profile btn-p-primary" onclick="saveEntInfo()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save Changes
+                  </button>
+                  <button class="btn-profile btn-p-ghost" onclick="discardEntInfo()">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Discard
+                  </button>
+                </div>
+                <span id="entSavedMsg" style="display:none;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--green);margin-top:10px">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Enterprise details updated
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Domain Policy -->
+          <div class="policy-card">
+            <div class="policy-card-hd">
+              <div class="policy-card-title">Domain Policy</div>
+              <div class="policy-card-desc">Authorised domains for SSO username emails eligible to access this enterprise.</div>
+            </div>
+            <div class="policy-card-body">
+              <div>
+                <div class="policy-field-label">Authorised Domains</div>
+                <div class="domain-wrap" onclick="this.querySelector('.d-input').focus()">
+                  <span class="d-tag">rfad.in <button onclick="this.parentElement.remove();markDirty('domain')">×</button></span>
+                  <span class="d-tag">retailwithesther.com <button onclick="this.parentElement.remove();markDirty('domain')">×</button></span>
+                  <input class="d-input" placeholder="Add domain, press Enter…" onkeydown="domainKey(event,this)" oninput="markDirty('domain')" />
+                </div>
+                <div style="font-size:11px;color:var(--text-3);margin-top:6px">
+                  Press <kbd style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-family:var(--font-mono);font-size:10px">Enter</kbd> to add ·
+                  <kbd style="background:var(--bg);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-family:var(--font-mono);font-size:10px">Backspace</kbd> to remove last
+                </div>
+              </div>
+            </div>
+            <div class="policy-footer" id="domainFooter">
+              <div style="display:flex;gap:8px">
+                <button class="btn-profile btn-p-primary" style="height:34px;font-size:12px;padding:0 14px" onclick="savePolicy('domain')">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save Changes
+                </button>
+                <button class="btn-profile btn-p-ghost" style="height:34px;font-size:12px;padding:0 14px" onclick="resetPolicy('domain')">Discard</button>
+              </div>
+              <span class="policy-saved-msg"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Domain policy updated</span>
+            </div>
+          </div>
+
+          <!-- Password Policy -->
+          <div class="policy-card">
+            <div class="policy-card-hd">
+              <div class="policy-card-title">Password Policy</div>
+              <div class="policy-card-desc">Define password complexity requirements for all users in this enterprise.</div>
+            </div>
+            <div class="policy-card-body">
+              <div>
+                <div class="policy-field-label">Minimum Password Length</div>
+                <div class="len-stepper">
+                  <button class="step-b" onclick="stepLen(-1)">−</button>
+                  <input class="len-num" type="number" id="lenNum" value="8" min="6" max="32" />
+                  <button class="step-b" onclick="stepLen(1)">+</button>
+                </div>
+              </div>
+              <div>
+                <div class="policy-field-label">Require at least one of the following</div>
+                <div class="char-pills">
+                  <div class="char-pill on" onclick="this.classList.toggle('on');toggleCheck(this)"><div class="char-check"><svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 12 12"><polyline points="1.5 6 4.5 9 10.5 3"/></svg></div>Lowercase <span class="char-code">a–z</span></div>
+                  <div class="char-pill" onclick="this.classList.toggle('on');toggleCheck(this)"><div class="char-check"></div>Uppercase <span class="char-code">A–Z</span></div>
+                  <div class="char-pill on" onclick="this.classList.toggle('on');toggleCheck(this)"><div class="char-check"><svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 12 12"><polyline points="1.5 6 4.5 9 10.5 3"/></svg></div>Numbers <span class="char-code">0–9</span></div>
+                  <div class="char-pill" onclick="this.classList.toggle('on');toggleCheck(this)"><div class="char-check"></div>Special chars <span class="char-code">!@#$</span></div>
+                </div>
+              </div>
+              <div>
+                <div class="policy-field-label">Two-Factor Authentication</div>
+                <div class="twofa-toggle-row" id="tfaRow" onclick="toggleTFA()">
+                  <div style="flex:1">
+                    <div class="tti-title">Make 2FA mandatory for all users</div>
+                    <div class="tti-desc">Users will be prompted to set up 2FA on their next login if not already configured.</div>
+                  </div>
+                  <!-- Shared .toggle from components.css -->
+                  <label class="toggle" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="tfaCheck" onchange="syncTFA()" onclick="event.stopPropagation()" />
+                    <div class="toggle-track"></div>
+                    <div class="toggle-thumb"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="policy-footer" id="passwordFooter">
+              <div style="display:flex;gap:8px">
+                <button class="btn-profile btn-p-primary" style="height:34px;font-size:12px;padding:0 14px" onclick="savePolicy('password')">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save Changes
+                </button>
+                <button class="btn-profile btn-p-ghost" style="height:34px;font-size:12px;padding:0 14px" onclick="resetPolicy('password')">Discard</button>
+              </div>
+              <span class="policy-saved-msg"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Password policy updated</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2 · Team -->
+      <div class="profile-content" id="pt-team">
+        <div class="profile-inner">
+          <div class="team-header">
+            <div class="team-count">Team <span class="team-count-badge">7</span></div>
+            <div class="team-actions">
+              <!-- Shared .btn from components.css -->
+              <button class="btn">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Bulk Import
+              </button>
+              <button class="btn btn--primary">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Member
+              </button>
+            </div>
+          </div>
+          <div class="team-search">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="teamSearchInput" placeholder="Search team by name or email…" oninput="filterTeam(this.value)" autocomplete="off" />
+          </div>
+          <div class="team-list" id="teamList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Shared .logout-overlay from components.css -->
+<div class="logout-overlay" id="logoutOverlay">
+  <div class="logout-modal">
+    <div class="logout-modal-icon">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </div>
+    <div class="logout-modal-title">Log out of Ginesys One?</div>
+    <div class="logout-modal-desc">You'll be returned to the login screen. Any unsaved changes will be lost.</div>
+    <div class="logout-modal-actions">
+      <button class="btn-logout-cancel" onclick="hideLogoutModal()">Cancel</button>
+      <button class="btn-logout-confirm" onclick="goTo('s-login'); hideLogoutModal()">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shared .launch-toast from components.css -->
+<div class="launch-toast" id="launchToast">
+  <div class="launch-toast-spinner"></div>
+  <span id="launchToastText">Launching app…</span>
+</div>
+
+<script>
+/* ── LOGIN ── */
+function togglePw() {
+  const inp = document.getElementById('pwInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+document.getElementById('loginBtn').addEventListener('click', () => goTo('s-launcher'));
+
+/* ── APP FILTER ── */
+const favorites = new Set(['Browntape', 'Ginesys ERP', 'Zwing POS']);
+function filterApps(cat, el) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.app-card').forEach(card => {
+    const c = card.dataset.category, n = card.dataset.name || '';
+    card.style.display = (cat === 'all' ? true : cat === 'favorites' ? favorites.has(n) : c === cat) ? '' : 'none';
+  });
+}
+filterApps('favorites', null); // init
+
+/* ── PROFILE TABS ── */
+function switchProfileTab(idx, el) {
+  document.querySelectorAll('.p-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.profile-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(['pt-profile','pt-enterprise','pt-team'][idx]).classList.add('active');
+}
+
+/* ── USER INFO EDIT ── */
+const editableFields = [
+  { disp:'disp-name',  inp:'inp-name'  },
+  { disp:'disp-email', inp:'inp-email' },
+  { disp:'disp-phone', inp:'inp-phone' },
+];
+function startEditInfo() {
+  editableFields.forEach(({ disp, inp }) => {
+    document.getElementById(disp).style.display = 'none';
+    document.getElementById(inp).style.display  = 'block';
+  });
+  document.getElementById('actionsView').style.display = 'none';
+  document.getElementById('actionsEdit').style.display = 'flex';
+  document.getElementById('changePwBtn').disabled = true;
+  document.getElementById('userInfoGrid').classList.add('is-editing');
+  document.getElementById('inp-name').focus();
+}
+function saveInfo() {
+  editableFields.forEach(({ disp, inp }) => {
+    const val = document.getElementById(inp).value.trim();
+    const dispEl = document.getElementById(disp);
+    if (val) dispEl.textContent = val;
+    dispEl.style.display = '';
+    document.getElementById(inp).style.display = 'none';
+  });
+  exitEdit(true);
+}
+function discardInfo() {
+  editableFields.forEach(({ disp, inp }) => {
+    const dispEl = document.getElementById(disp);
+    document.getElementById(inp).value = dispEl.textContent.trim();
+    dispEl.style.display = '';
+    document.getElementById(inp).style.display = 'none';
+  });
+  exitEdit(false);
+}
+function exitEdit(saved) {
+  document.getElementById('actionsView').style.display = 'flex';
+  document.getElementById('actionsEdit').style.display = 'none';
+  document.getElementById('changePwBtn').disabled = false;
+  document.getElementById('userInfoGrid').classList.remove('is-editing');
+  if (saved) {
+    const msg = document.getElementById('infoSavedMsg');
+    msg.style.display = 'flex';
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  }
+}
+
+/* ── ENTERPRISE INFO EDIT ── */
+const entFields = [
+  { disp:'edisp-trade',   inp:'einp-trade'   },
+  { disp:'edisp-legal',   inp:'einp-legal'   },
+  { disp:'edisp-website', inp:'einp-website'  },
+  { disp:'edisp-email',   inp:'einp-email'   },
+  { disp:'edisp-pan',     inp:'einp-pan'     },
+  { disp:'edisp-cin',     inp:'einp-cin'     },
+];
+const timezones = [
+  'GMT -12:00 — International Date Line West','GMT -11:00 — Samoa Standard Time',
+  'GMT -10:00 — Hawaii Standard Time','GMT -08:00 — Pacific Standard Time',
+  'GMT -07:00 — Mountain Standard Time','GMT -06:00 — Central Standard Time',
+  'GMT -05:00 — Eastern Standard Time','GMT -03:00 — Buenos Aires Time',
+  'GMT +00:00 — Greenwich Mean Time','GMT +01:00 — Central European Time',
+  'GMT +02:00 — Eastern European Time','GMT +03:00 — Moscow Standard Time',
+  'GMT +04:00 — Gulf Standard Time','GMT +05:00 — Pakistan Standard Time',
+  'GMT +05:30 — India Standard Time','GMT +05:45 — Nepal Time',
+  'GMT +06:00 — Bangladesh Standard Time','GMT +07:00 — Indochina Time',
+  'GMT +08:00 — China Standard Time','GMT +09:00 — Japan Standard Time',
+  'GMT +09:30 — Australian Central Time','GMT +10:00 — Australian Eastern Time',
+  'GMT +12:00 — New Zealand Standard Time',
+];
+let selectedTz = 'GMT +5:30 — India Standard Time';
+
+function buildTzList(filter) {
+  const list = document.getElementById('tzList');
+  const q    = (filter || '').toLowerCase();
+  list.innerHTML = '';
+  const matches = timezones.filter(t => t.toLowerCase().includes(q));
+  if (!matches.length) {
+    list.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text-3);text-align:center;font-style:italic">No timezones found</div>';
+    return;
+  }
+  matches.forEach(tz => {
+    const d = document.createElement('div');
+    d.className = 'tz-opt' + (tz === selectedTz ? ' selected' : '');
+    d.textContent = tz;
+    d.onclick = () => { selectedTz = tz; document.getElementById('tzDisplay').value = tz; closeTzDropdown(); };
+    list.appendChild(d);
+  });
+}
+function toggleTzDropdown() {
+  const w = document.getElementById('tzWrap');
+  if (w.classList.toggle('open')) { buildTzList(); setTimeout(() => document.getElementById('tzSearch').focus(), 50); }
+}
+function closeTzDropdown() { document.getElementById('tzWrap').classList.remove('open'); }
+function filterTz(q) { buildTzList(q); }
+document.addEventListener('click', e => {
+  const w = document.getElementById('tzWrap');
+  if (w && !w.contains(e.target)) closeTzDropdown();
+});
+
+function startEditEntInfo() {
+  entFields.forEach(({ disp, inp }) => {
+    document.getElementById(disp).style.display = 'none';
+    document.getElementById(inp).style.display  = 'block';
+  });
+  document.getElementById('edisp-tz').style.display = 'none';
+  document.getElementById('tzWrap').style.display   = 'block';
+  document.getElementById('entActionsView').style.display = 'none';
+  document.getElementById('entActionsEdit').style.display = 'flex';
+}
+function saveEntInfo() {
+  entFields.forEach(({ disp, inp }) => {
+    const val    = document.getElementById(inp).value.trim();
+    const dispEl = document.getElementById(disp);
+    if (val) { dispEl.textContent = val; dispEl.classList.remove('empty'); }
+    dispEl.style.display = '';
+    document.getElementById(inp).style.display = 'none';
+  });
+  document.getElementById('edisp-tz').textContent   = selectedTz;
+  document.getElementById('edisp-tz').style.display = '';
+  document.getElementById('tzWrap').style.display   = 'none';
+  exitEntEdit(true);
+}
+function discardEntInfo() {
+  entFields.forEach(({ disp, inp }) => {
+    const dispEl = document.getElementById(disp);
+    document.getElementById(inp).value = dispEl.textContent === 'Not specified' ? '' : dispEl.textContent.trim();
+    dispEl.style.display = '';
+    document.getElementById(inp).style.display = 'none';
+  });
+  document.getElementById('edisp-tz').style.display = '';
+  document.getElementById('tzWrap').style.display   = 'none';
+  exitEntEdit(false);
+}
+function exitEntEdit(saved) {
+  document.getElementById('entActionsView').style.display = 'flex';
+  document.getElementById('entActionsEdit').style.display = 'none';
+  if (saved) {
+    const msg = document.getElementById('entSavedMsg');
+    msg.style.display = 'flex';
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+  }
+}
+
+/* ── POLICY CARDS ── */
+function markDirty(card) {
+  const f = document.getElementById(card === 'domain' ? 'domainFooter' : 'passwordFooter');
+  if (f) { f.classList.remove('saved'); f.classList.add('dirty'); }
+}
+function savePolicy(card) {
+  const f = document.getElementById(card === 'domain' ? 'domainFooter' : 'passwordFooter');
+  f.classList.remove('dirty'); f.classList.add('saved');
+  setTimeout(() => f.classList.remove('saved'), 3000);
+}
+function resetPolicy(card) {
+  const f = document.getElementById(card === 'domain' ? 'domainFooter' : 'passwordFooter');
+  f.classList.remove('dirty', 'saved');
+  if (card === 'password') {
+    document.getElementById('lenNum').value = 8;
+    document.querySelectorAll('.char-pill').forEach((p, i) => {
+      const on = [true, false, true, false][i];
+      p.classList.toggle('on', on);
+      p.querySelector('.char-check').innerHTML = on
+        ? '<svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 12 12"><polyline points="1.5 6 4.5 9 10.5 3"/></svg>' : '';
+    });
+    document.getElementById('tfaCheck').checked = false; syncTFA();
+  }
+}
+function stepLen(d) {
+  const el = document.getElementById('lenNum');
+  el.value = Math.min(32, Math.max(6, (parseInt(el.value) || 8) + d));
+  markDirty('password');
+}
+function toggleCheck(el) {
+  el.querySelector('.char-check').innerHTML = el.classList.contains('on')
+    ? '<svg width="9" height="9" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 12 12"><polyline points="1.5 6 4.5 9 10.5 3"/></svg>' : '';
+  markDirty('password');
+}
+function toggleTFA() {
+  const cb = document.getElementById('tfaCheck');
+  cb.checked = !cb.checked; syncTFA();
+}
+function syncTFA() {
+  document.getElementById('tfaRow').classList.toggle('on', document.getElementById('tfaCheck').checked);
+  markDirty('password');
+}
+
+/* ── DOMAIN TAG INPUT ── */
+function domainKey(e, inp) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const v = inp.value.trim();
+    if (v && v.includes('.')) {
+      const tag = document.createElement('span');
+      tag.className = 'd-tag';
+      tag.innerHTML = `${v} <button onclick="this.parentElement.remove();markDirty('domain')">×</button>`;
+      inp.parentElement.insertBefore(tag, inp);
+      inp.value = ''; markDirty('domain');
+    }
+  } else if (e.key === 'Backspace' && !inp.value) {
+    const tags = inp.parentElement.querySelectorAll('.d-tag');
+    if (tags.length) { tags[tags.length - 1].remove(); markDirty('domain'); }
+  }
+}
+
+/* ── TEAM ── */
+const members = [
+  { name:'Laksh Aeterna',  you:true,  email:'laksh@rfad.com',            role:'holder', av:'L', color:'linear-gradient(135deg,#6dbb5a,#4f7c3f)' },
+  { name:'Aniket Mansell', you:false, email:'aniket@retailwithesther.in', role:'member', av:'A', color:'linear-gradient(135deg,#5a8fe8,#3b6fd4)' },
+  { name:'Priya Sharma',   you:false, email:'priya@retailwithesther.in',  role:'admin',  av:'P', color:'linear-gradient(135deg,#e87a5a,#c95032)' },
+  { name:'Sameer Overture',you:false, email:'sameer@retailwithesther.in', role:'member', av:'S', color:'linear-gradient(135deg,#5abce8,#2d7fb3)' },
+  { name:'Meera Gupta',    you:false, email:'meera@retailwithesther.in',  role:'member', av:'M', color:'linear-gradient(135deg,#e8a85a,#b37020)' },
+  { name:'Ravi Kumar',     you:false, email:'ravi@retailwithesther.in',   role:'member', av:'R', color:'linear-gradient(135deg,#8a5ae8,#5a2db3)' },
+  { name:'Sunita Patel',   you:false, email:'sunita@retailwithesther.in', role:'member', av:'S', color:'linear-gradient(135deg,#5ae8b5,#2db37a)' },
+];
+// Uses shared .badge classes from components.css
+const roleLbl = { holder:'Account Holder', member:'Member', admin:'Admin' };
+const roleCls = { holder:'badge--role-holder', member:'badge--role-member', admin:'badge--role-admin' };
+
+function renderTeam() {
+  document.getElementById('teamList').innerHTML = members.map((m, i) => `
+    <div class="team-row">
+      <div class="member-av" style="background:${m.color};color:white">${m.av}</div>
+      <div>
+        <div class="member-name">${m.name}${m.you ? ' <span class="member-name-you">(You)</span>' : ''}</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:1px">${m.email}</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+        <span class="badge ${roleCls[m.role]}">${roleLbl[m.role]}</span>
+        <div class="row-menu">
+          <button class="row-menu-btn" onclick="toggleRowDropdown('dd${i}',event)">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+          <div class="dropdown" id="dd${i}">
+            <div class="dropdown-item" onclick="closeRowDropdowns()">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit User
+            </div>
+            <div class="dropdown-item" onclick="closeRowDropdowns()">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Reset Password
+            </div>
+            <div class="dropdown-item danger" onclick="closeRowDropdowns()">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Remove User
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterTeam(q) {
+  const lq = q.trim().toLowerCase();
+  document.querySelectorAll('#teamList .team-row').forEach(row => {
+    row.style.display = (!lq || row.innerText.toLowerCase().includes(lq)) ? '' : 'none';
+  });
+}
+function toggleRowDropdown(id, e) {
+  e.stopPropagation(); closeRowDropdowns();
+  document.getElementById(id).classList.toggle('open');
+}
+function closeRowDropdowns() {
+  document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+}
+document.addEventListener('click', closeRowDropdowns);
+
+renderTeam();
+</script>
+</body>
+</html>
