@@ -1,6 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { AvatarDropdown } from './AvatarDropdown'
+import { EnterpriseSwitcher, ENTERPRISES } from '../shared/EnterpriseSwitcher'
 
 interface Props {
+  enterprise: string
+  onSwitchEnterprise: (name: string) => void
   onGoToProfile: () => void
   onLogout: () => void
 }
@@ -19,6 +24,8 @@ const GinesysLogo = () => (
   </svg>
 )
 
+const icon = (file: string) => `${import.meta.env.BASE_URL}icons/${file}`
+
 type Category = 'favorites' | 'all' | 'core' | 'common'
 
 interface App {
@@ -28,7 +35,7 @@ interface App {
   desc: string
   status: 'active' | 'expired' | 'expiring'
   color: string
-  icon: React.ReactNode
+  icon: string
 }
 
 const apps: App[] = [
@@ -36,139 +43,83 @@ const apps: App[] = [
     name: 'Browntape', category: 'core', cat: 'Order Management',
     desc: 'Manage omnichannel orders, batches, and shipments across all sales channels.',
     status: 'expired', color: '#c9402a',
-    icon: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="20" fill="#BF1A1A" />
-        <path fillRule="evenodd" clipRule="evenodd" d="M10.478 12.285a2.4 2.4 0 01.317-.277c.394-.284 1.02-.608 1.857-.943 1.664-.668 4.039-1.336 6.726-1.836 2.687-.5 5.143-.732 6.936-.708.902.012 1.603.088 2.072.212.186.049.314.1.396.143-.061.07-.162.164-.318.276-.393.284-1.02.608-1.857.943-1.664.667-4.039 1.335-6.726 1.836a47.3 47.3 0 01-2.03.231c-.09-.504-.238-.926-.44-1.257-.27-.441-.679-.776-1.197-.809-.517-.032-.948.249-1.236.62-.289.372-.476.877-.548 1.458l-.08.41a38.7 38.7 0 01-2.354-.008c-.902-.012-1.603-.088-2.072-.212a2.12 2.12 0 01-.423-.143zm6.567-.728c.099.162.199.415.269.783l-.962.114.025-.19c.052-.42.178-.696.295-.847.154-.198.267-.108.373.14zM15.715 13.77l-.116.01a19.4 19.4 0 01-2.57.12c-.886-.012-1.661-.082-2.26-.225l1.385 7.436c.138.134.349.204.526.265.48.165 1.193.298 2.101.37 1.807.142 4.273.032 6.941-.465 2.668-.497 5.008-1.282 6.643-2.066.82-.393 1.438-.774 1.827-1.101.143-.12.314-.262.395-.437L28.89 10.23c-.508.348-1.206.693-2.029 1.024-1.761.706-4.22 1.394-6.962 1.904a60.5 60.5 0 01-4.183.611z" fill="white" />
-      </svg>
-    )
+    icon: icon('browntape.png'),
   },
   {
     name: 'Ginesys ERP', category: 'core', cat: 'Back Office ERP',
     desc: 'Full ERP suite for inventory, production, finance, procurement, and sales.',
     status: 'active', color: '#4f7c3f',
-    icon: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="20" fill="#4FCA43" />
-        <path fillRule="evenodd" clipRule="evenodd" d="M20.066 27.381c5.766 0 10.44-4.674 10.44-10.44 0-2.712-1.033-5.182-2.728-7.038 1.326-.703 2.143-2.173 2.223-2.93.028-.26-.182-.473-.444-.473H20.066c-5.766 0-10.44 4.674-10.44 10.44s4.674 10.44 10.44 10.44zm-6.644-10.44c0-3.67 2.975-6.644 6.644-6.644s6.644 2.975 6.644 6.644-2.975 6.644-6.644 6.644-6.644-2.975-6.644-6.644zm16.215 14.724a1.5 1.5 0 00.242-2.096l-1.12-1.534a1.5 1.5 0 00-1.949-.27 12.6 12.6 0 01-6.944 2.178 12.6 12.6 0 01-6.944-2.178 1.5 1.5 0 00-1.948.27l-1.12 1.534a1.5 1.5 0 00.241 2.096A17.46 17.46 0 0020.066 34.5c3.531 0 6.818-1.042 9.571-2.835z" fill="white" />
-      </svg>
-    )
+    icon: icon('ginesys-erp.png'),
   },
   {
     name: 'EaseMyGST', category: 'core', cat: 'GST Compliance',
     desc: 'Automated GST filing, reconciliation, and compliance reporting for India.',
     status: 'expiring', color: '#3b6fd4',
-    icon: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="20" fill="#448AAD" />
-        <path fillRule="evenodd" clipRule="evenodd" d="M20.869 5.572a3.2 3.2 0 010 4.52L13.48 17.48a1.8 1.8 0 000 2.546 1.8 1.8 0 002.546 0l3.563-3.563a3.2 3.2 0 014.52 0 3.2 3.2 0 010 4.52L14.61 29.91 6.094 21.39a5.6 5.6 0 010-7.92L16.35 3.213a3.2 3.2 0 014.52.36z" fill="white" />
-        <path fillRule="evenodd" clipRule="evenodd" d="M34.428 19.131a3.2 3.2 0 010 4.52L24.172 33.906a5.6 5.6 0 01-7.92 0l-4.867-4.867a1.8 1.8 0 010-2.546l1.738-1.738a1.8 1.8 0 012.546 0l2.434 2.433a1.1 1.1 0 001.556 0l7.822-7.822a3.2 3.2 0 014.947.765z" fill="#5FFFE4" />
-      </svg>
-    )
+    icon: icon('emg.png'),
   },
   {
     name: 'Zwing POS', category: 'core', cat: 'Cloud POS',
     desc: 'Modern cloud point of sale for retail stores with offline capability.',
     status: 'active', color: '#c47d0e',
-    icon: (
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <rect width="40" height="40" rx="20" fill="#FFCC00" />
-        <path d="M13.208 8.302H31.32L24.15 19.245V10.194L11.887 28.68H8.679L17.736 15.094H8.679l4.529-6.792z" fill="white" />
-        <path d="M20.755 37.736L31.32 21.887H23.02V13.962L13.208 28.68h7.547v9.056z" fill="white" />
-      </svg>
-    )
+    icon: icon('zwing.png'),
   },
   {
     name: 'CRM', category: 'common', cat: 'Customer Relationship',
     desc: 'Track leads, manage customer lifecycle, and grow retail relationships.',
     status: 'active', color: '#7c4dcc',
-    icon: (
-      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-        <rect width="64" height="64" rx="32" fill="#EDE7F6" />
-        <path d="M32 31a7 7 0 100-14 7 7 0 000 14z" fill="#7C4DCC" />
-        <path d="M19 46c0-7.18 5.82-10 13-10s13 2.82 13 10" stroke="#7C4DCC" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M41 27l1.5 1.5 4-4" stroke="#7C4DCC" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
+    icon: icon('crm.png'),
   },
   {
     name: 'Gift Vouchers', category: 'common', cat: 'Promotions & Rewards',
     desc: 'Issue, track, and redeem gift vouchers and promotional codes in-store.',
     status: 'active', color: '#e91e8c',
-    icon: (
-      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-        <rect width="64" height="64" rx="32" fill="#FCE4EC" />
-        <rect x="17" y="30" width="30" height="20" rx="3" fill="#E91E8C" />
-        <rect x="17" y="24" width="30" height="8" rx="3" fill="#C2185B" />
-        <line x1="32" y1="24" x2="32" y2="50" stroke="#FCE4EC" strokeWidth="2" />
-        <path d="M32 24c0 0-3.5-5 0-7s3.5 5 0 7z" fill="#FCE4EC" />
-        <path d="M32 24c0 0 3.5-5 0-7s-3.5 5 0 7z" fill="#F48FB1" />
-      </svg>
-    )
+    icon: icon('gift-voucher.png'),
   },
   {
     name: 'Wallet Service', category: 'common', cat: 'Digital Wallet & Credits',
     desc: 'Manage customer wallet balances, loyalty credits, and cashback programs.',
     status: 'active', color: '#00897B',
-    icon: (
-      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-        <rect width="64" height="64" rx="32" fill="#E0F2F1" />
-        <rect x="16" y="24" width="32" height="22" rx="4" fill="#00897B" />
-        <rect x="16" y="29" width="32" height="7" fill="#00695C" />
-        <circle cx="42" cy="32" r="3.5" fill="#80CBC4" />
-        <rect x="20" y="39" width="9" height="3" rx="1.5" fill="#80CBC4" />
-      </svg>
-    )
+    icon: icon('wallet.png'),
   },
   {
     name: 'Connect', category: 'common', cat: 'Data Integration Platform',
     desc: 'Integrate and sync data across your retail stack with no-code pipelines.',
     status: 'active', color: '#E65100',
-    icon: (
-      <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-        <rect width="64" height="64" rx="32" fill="#FBE9E7" />
-        <circle cx="32" cy="32" r="5" fill="#E65100" />
-        <circle cx="17" cy="23" r="3.5" fill="#FF8A65" />
-        <circle cx="47" cy="23" r="3.5" fill="#FF8A65" />
-        <circle cx="17" cy="41" r="3.5" fill="#FF8A65" />
-        <circle cx="47" cy="41" r="3.5" fill="#FF8A65" />
-        <line x1="20.5" y1="25" x2="28" y2="29.5" stroke="#E65100" strokeWidth="2" strokeLinecap="round" />
-        <line x1="43.5" y1="25" x2="36" y2="29.5" stroke="#E65100" strokeWidth="2" strokeLinecap="round" />
-        <line x1="20.5" y1="39" x2="28" y2="34.5" stroke="#E65100" strokeWidth="2" strokeLinecap="round" />
-        <line x1="43.5" y1="39" x2="36" y2="34.5" stroke="#E65100" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    )
+    icon: icon('in.png'),
   },
 ]
 
 const favorites = new Set(['Browntape', 'Ginesys ERP', 'Zwing POS'])
 
-const StatusBadge = ({ status }: { status: App['status'] }) => {
-  if (status === 'expired') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[var(--color-status-danger-bg)] text-[var(--color-status-danger-text)]">
-      <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-      License Expired
-    </span>
-  )
-  if (status === 'expiring') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]">
-      <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
-      Expires Soon
-    </span>
-  )
-  return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-[var(--color-status-active-bg)] text-[var(--color-status-active-text)]">
-      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-      Active
-    </span>
-  )
-}
 
-export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
+export default function AppLauncher({ enterprise, onSwitchEnterprise, onGoToProfile, onLogout }: Props) {
   const [category, setCategory] = useState<Category>('favorites')
   const [avOpen, setAvOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [showLogout, setShowLogout] = useState(false)
+  const [showEntSwitcher, setShowEntSwitcher] = useState(false)
+  const [entToast, setEntToast] = useState<string | null>(null)
+
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // Show toast when returning from ProfileScreen after a switch
+  useEffect(() => {
+    const switched = (location.state as { enterpriseSwitched?: string } | null)?.enterpriseSwitched
+    if (switched) {
+      setEntToast(switched)
+      setTimeout(() => setEntToast(null), 3000)
+      // Clear state so re-visiting doesn't re-trigger
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [])
+
+  const handleEnterpriseSwitch = (name: string) => {
+    onSwitchEnterprise(name)
+    setShowEntSwitcher(false)
+    setEntToast(name)
+    setTimeout(() => setEntToast(null), 3000)
+  }
 
   const filtered = apps.filter(app => {
     if (category === 'all') return true
@@ -193,7 +144,7 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
     <div className="flex flex-col h-screen" style={{ background: 'var(--gradient-bg-launcher)' }}>
 
       {/* ── Topbar ── */}
-      <div className="h-14 bg-white border-b border-[var(--color-border-default)] px-9 flex items-center gap-3.5 shrink-0 z-10 shadow-[0_1px_0_var(--color-border-default)]">
+      <div className="h-14 bg-white/[0.82] backdrop-blur-md px-9 flex items-center gap-3.5 shrink-0 z-10 shadow-[var(--shadow-sm)]">
         <div className="flex items-center gap-2.5 cursor-pointer">
           <GinesysLogo />
           <span className="text-sm font-semibold text-[var(--color-text-primary)]" style={{ letterSpacing: '-0.3px' }}>Ginesys One</span>
@@ -201,12 +152,28 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
 
         <div className="ml-auto flex items-center gap-3">
           {/* Org pill */}
-          <div className="flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-text-secondary)] bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] px-3 py-1.5 rounded-full">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[var(--color-text-tertiary)]">
-              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="2" />
-            </svg>
-            Esther Fashions
-          </div>
+          {(() => {
+            const ent = ENTERPRISES.find(e => e.name === enterprise)
+            return (
+              <button
+                onClick={() => setShowEntSwitcher(true)}
+                className="flex items-center gap-2 text-xs font-medium text-[var(--color-text-primary)] bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-strong)] pl-1.5 pr-3 py-1 rounded-full hover:bg-white transition-colors cursor-pointer"
+              >
+                {ent && (
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-white shrink-0"
+                    style={{ background: ent.color, fontSize: '9px', fontWeight: 700, letterSpacing: 0 }}
+                  >
+                    {ent.initial}
+                  </div>
+                )}
+                {enterprise}
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="opacity-50 shrink-0">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            )
+          })()}
 
           {/* Avatar */}
           <div className="relative">
@@ -220,27 +187,25 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
 
             {/* Dropdown */}
             {avOpen && (
-              <div className="absolute top-[calc(100%+10px)] right-0 w-[230px] bg-white border border-[var(--color-border-default)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.10)] z-50 overflow-hidden">
-                <div className="flex items-center gap-3 p-4 bg-[var(--color-bg-brand-subtle)] border-b border-[var(--color-border-brand-subtle)]">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: 'var(--gradient-avatar-primary)' }}>L</div>
-                  <div>
-                    <div className="text-sm font-bold text-[var(--color-text-primary)]">Laksh Aeterna</div>
-                    <span className="text-xs font-bold bg-[var(--color-role-holder-bg)] text-[var(--color-role-holder-text)] rounded-full px-2 py-0.5 mt-1 inline-block">Account Holder</span>
-                  </div>
-                </div>
-                <div className="p-1.5">
-                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[var(--color-text-primary)] cursor-pointer hover:bg-[var(--color-bg-subtle)]"
-                    onClick={() => { setAvOpen(false); onGoToProfile() }}>
-                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-[var(--color-text-secondary)]"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                    Account
-                  </div>
-                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[var(--color-text-danger)] cursor-pointer hover:bg-[var(--color-bg-danger)]"
-                    onClick={() => { setAvOpen(false); setShowLogout(true) }}>
-                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    Log out
-                  </div>
-                </div>
-              </div>
+              <AvatarDropdown
+                name="Laksh Aeterna"
+                roleLabel="Account Holder"
+                roleBg="var(--color-role-holder-bg)"
+                roleText="var(--color-role-holder-text)"
+                items={[
+                  {
+                    icon: <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>,
+                    label: 'Account',
+                    onClick: () => { setAvOpen(false); onGoToProfile() },
+                  },
+                  {
+                    icon: <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>,
+                    label: 'Log out',
+                    danger: true,
+                    onClick: () => { setAvOpen(false); setShowLogout(true) },
+                  },
+                ]}
+              />
             )}
           </div>
         </div>
@@ -274,62 +239,83 @@ export default function AppLauncher({ onGoToProfile, onLogout }: Props) {
             <div
               key={app.name}
               onClick={() => launch(app.name)}
-              className={`w-[224px] bg-white border border-[var(--color-border-default)] rounded-[18px] p-7 pt-7 pb-5 flex flex-col items-center relative overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-200 group ${
+              className={`w-[224px] bg-white rounded-[var(--radius-xl)] p-7 pt-7 pb-5 flex flex-col items-center relative overflow-hidden shadow-[var(--shadow-sm)] transition-all duration-200 group ${
                 app.status === 'expired'
                   ? 'opacity-75 cursor-not-allowed'
-                  : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] hover:border-[var(--color-border-hover)]'
+                  : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-[var(--shadow-lg)]'
               }`}
             >
-              {/* Background glow */}
-              <div
-                className="absolute inset-0 opacity-[0.055] pointer-events-none"
-                style={{ background: `radial-gradient(ellipse at 50% -10%, ${app.color} 0%, transparent 65%)` }}
-              />
-
-              {/* Arrow on hover */}
+              {/* Background glow — uniform brand, scales cleanly at any catalog size */}
               {app.status !== 'expired' && (
-                <div className="absolute top-3.5 right-3.5 w-6 h-6 rounded-lg bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-secondary)]">
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(79,124,63,0.07) 0%, transparent 65%)' }}
+                />
+              )}
+
+              {/* Status overlay badge — expired / expiring only */}
+              {app.status === 'expired' && (
+                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--color-status-danger-bg)] text-[var(--color-status-danger-text)]">Expired 3d ago</span>
+              )}
+              {app.status === 'expiring' && (
+                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]">Expires in 10d</span>
+              )}
+
+              {/* Arrow on hover — active only */}
+              {app.status === 'active' && (
+                <div className="absolute top-3.5 right-3.5 w-6 h-6 rounded-md bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-secondary)]">
                   <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7" /><polyline points="7 7 17 7 17 17" /></svg>
                 </div>
               )}
 
-              <div className="w-16 h-16 rounded-[18px] flex items-center justify-center mb-4 shrink-0 overflow-hidden">
-                {app.icon}
+              <div className="w-16 h-16 rounded-full mb-4 shrink-0 overflow-hidden">
+                <img src={app.icon} alt={app.name} className="w-full h-full object-cover" />
               </div>
-              <div className="text-sm font-bold text-[var(--color-text-primary)] mb-0.5 text-center" style={{ letterSpacing: '-0.25px' }}>{app.name}</div>
-              <div className="text-[11px] text-[var(--color-text-tertiary)] font-medium text-center mb-3.5">{app.cat}</div>
-              <div className="text-[11.5px] text-[var(--color-text-secondary)] text-center leading-relaxed mb-4">{app.desc}</div>
-              <div className="mt-auto flex items-center gap-1.5">
-                <StatusBadge status={app.status} />
-                {app.status === 'expired' && (
-                  <span className="text-[10.5px] font-bold text-[var(--color-text-expired)] underline underline-offset-2 cursor-pointer">Renew</span>
-                )}
-              </div>
+              <div className="text-base font-medium text-[var(--color-text-primary)] mb-0.5 text-center" style={{ letterSpacing: '-0.25px' }}>{app.name}</div>
+              <div className="text-xs font-normal text-[var(--color-text-tertiary)] text-center mb-3.5">{app.cat}</div>
+              <div className="text-xs font-normal text-[var(--color-text-secondary)] text-center leading-relaxed">{app.desc}</div>
             </div>
           ))}
         </div>
       </div>
 
+      {/* ── Enterprise Switch Toast ── */}
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9998] transition-all duration-200 ${entToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
+          <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+        </div>
+        Switched to {entToast}
+      </div>
+
       {/* ── Launch Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-xl flex items-center gap-2.5 text-sm font-medium shadow-[0_8px_28px_rgba(0,0,0,0.18)] whitespace-nowrap z-[9999] transition-all duration-200 ${toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
-        <div className="w-5 h-5 rounded-lg flex items-center justify-center shrink-0">
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0">
           <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         </div>
         Launching {toast}…
       </div>
 
+      {/* ── Enterprise Switcher ── */}
+      {showEntSwitcher && (
+        <EnterpriseSwitcher
+          enterprise={enterprise}
+          onSwitch={handleEnterpriseSwitch}
+          onClose={() => setShowEntSwitcher(false)}
+        />
+      )}
+
       {/* ── Logout Modal ── */}
       {showLogout && (
-        <div className="fixed inset-0 z-[200] bg-black/35 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogout(false)}>
-          <div className="bg-white rounded-[18px] p-8 pb-6 w-[340px] text-center shadow-[0_24px_60px_rgba(0,0,0,0.18)]" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] bg-black/30 backdrop-blur-[1px] flex items-center justify-center" onClick={() => setShowLogout(false)}>
+          <div className="bg-white p-8 pb-6 w-[340px] text-center shadow-[var(--shadow-xl)]" style={{ borderRadius: 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
             <div className="w-[52px] h-[52px] rounded-2xl bg-[var(--color-bg-danger)] flex items-center justify-center mx-auto mb-4 text-[var(--color-text-danger)]">
               <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             </div>
-            <div className="text-[17px] font-bold text-[var(--color-text-primary)] mb-2" style={{ letterSpacing: '-0.3px' }}>Log out of Ginesys One?</div>
+            <div className="text-xl font-bold text-[var(--color-text-primary)] mb-2" style={{ letterSpacing: '-0.3px' }}>Log out of Ginesys One?</div>
             <div className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-6">You'll be returned to the login screen. Any unsaved changes will be lost.</div>
             <div className="flex gap-2.5">
-              <button className="flex-1 h-10 rounded-xl bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-default)] text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:border-[var(--color-border-strong)] transition-colors" onClick={() => setShowLogout(false)}>Cancel</button>
-              <button className="flex-1 h-10 rounded-xl bg-[var(--color-text-danger)] border-[1.5px] border-[var(--color-text-danger)] text-sm font-semibold text-white cursor-pointer hover:bg-[var(--color-border-danger-hover)] transition-colors" onClick={() => { setShowLogout(false); onLogout() }}>Log out</button>
+              <button className="flex-1 h-10 rounded-md bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-default)] text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:border-[var(--color-border-strong)] transition-colors" onClick={() => setShowLogout(false)}>Cancel</button>
+              <button className="flex-1 h-10 rounded-md bg-[var(--color-text-danger)] border-[1.5px] border-[var(--color-text-danger)] text-sm font-semibold text-white cursor-pointer hover:bg-[var(--color-border-danger-hover)] transition-colors" onClick={() => { setShowLogout(false); onLogout() }}>Log out</button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 interface Props {
   onLaunchSSO: () => void
+  onLaunchAdmin: () => void
 }
 
 const GinesysLogo = () => (
@@ -27,7 +28,7 @@ interface Item {
   onClick?: () => void
 }
 
-export default function LandingPage({ onLaunchSSO }: Props) {
+export default function LandingPage({ onLaunchSSO, onLaunchAdmin }: Props) {
   const [query, setQuery] = useState('')
 
   const items: Item[] = [
@@ -38,6 +39,14 @@ export default function LandingPage({ onLaunchSSO }: Props) {
       section: 'prototypes',
       status: 'live',
       onClick: onLaunchSSO,
+    },
+    {
+      id: 'admin',
+      title: 'Ginesys One — Admin Panel',
+      description: 'Internal portal for the Ginesys team to manage, configure, and oversee enterprise accounts on the Ginesys One platform.',
+      section: 'prototypes',
+      status: 'live',
+      onClick: onLaunchAdmin,
     },
     {
       id: 'design-system',
