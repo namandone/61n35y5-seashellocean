@@ -1,6 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { AvatarDropdown } from './AvatarDropdown'
+import { FieldLabel } from '../shared/FieldLabel'
+import { EnterpriseSwitcher, ENTERPRISES } from '../shared/EnterpriseSwitcher'
+import { LoginHistoryDrawer } from './LoginHistoryDrawer'
+import { AddMemberDrawer, type NewMember } from './AddMemberDrawer'
+import { EditMemberDrawer, type MemberToEdit } from './EditMemberDrawer'
+import { UserDetailsDrawer, type UserDetail } from './UserDetailsDrawer'
 
 interface Props {
+  enterprise: string
+  onSwitchEnterprise: (name: string) => void
   onBack: () => void
   onLogout: () => void
 }
@@ -32,11 +41,59 @@ const members = [
   { name: 'Sunita Patel',    you: false, email: 'sunita@retailwithesther.in',   role: 'member', av: 'S', color: 'linear-gradient(135deg,#5ae8b5,#2db37a)' },
 ]
 
+const AVATAR_COLORS = [
+  'linear-gradient(135deg,#6dbb5a,#4f7c3f)',
+  'linear-gradient(135deg,#5a8fe8,#3b6fd4)',
+  'linear-gradient(135deg,#e87a5a,#c95032)',
+  'linear-gradient(135deg,#5abce8,#2d7fb3)',
+  'linear-gradient(135deg,#e8a85a,#b37020)',
+  'linear-gradient(135deg,#8a5ae8,#5a2db3)',
+  'linear-gradient(135deg,#5ae8b5,#2db37a)',
+]
+
 const roleLbl: Record<string, string> = { holder: 'Account Holder', member: 'Member', admin: 'Admin' }
 const roleCls: Record<string, string> = {
   holder: 'bg-[var(--color-role-holder-bg)] text-[var(--color-role-holder-text)]',
   member: 'bg-[var(--color-role-member-bg)] text-[var(--color-role-member-text)]',
   admin:  'bg-[var(--color-role-admin-bg)] text-[var(--color-role-admin-text)]',
+}
+
+// ── App access helpers (mirrors UserDetailsDrawer) ──
+const icon = (file: string) => `${import.meta.env.BASE_URL}icons/${file}`
+const APP_INSTANCES = [
+  { app: 'Browntape',      slug: 'browntape', icon: icon('browntape.png')    },
+  { app: 'Ginesys ERP',    slug: 'erp',       icon: icon('ginesys-erp.png')  },
+  { app: 'EaseMyGST',      slug: 'emg',       icon: icon('emg.png')          },
+  { app: 'Zwing POS',      slug: 'zwing',     icon: icon('zwing.png')        },
+  { app: 'CRM',            slug: 'crm',       icon: icon('crm.png')          },
+  { app: 'Gift Vouchers',  slug: 'gifts',     icon: icon('gift-voucher.png') },
+  { app: 'Wallet Service', slug: 'wallet',    icon: icon('wallet.png')       },
+  { app: 'Connect',        slug: 'connect',   icon: icon('in.png')           },
+].map(a => ({
+  ...a,
+  instances: [
+    { id: `${a.slug}-prod`,    name: 'Production', url: `production.${a.slug}.ginesys.one` },
+    { id: `${a.slug}-staging`, name: 'Staging',    url: `staging.${a.slug}.ginesys.one`    },
+    { id: `${a.slug}-uat`,     name: 'UAT',        url: `uat.${a.slug}.ginesys.one`         },
+  ],
+}))
+
+function seedInstances(name: string): Set<string> {
+  const seed = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  const appCount = 1 + (seed % 5)
+  const picked: number[] = []
+  for (let i = 0; picked.length < appCount; i++) {
+    const ai = (seed + i * 31) % 8
+    if (!picked.includes(ai)) picked.push(ai)
+  }
+  const ids: string[] = []
+  picked.forEach((ai, i) => {
+    const instCount = 1 + ((seed + i) % 2)
+    for (let j = 0; j < instCount; j++) {
+      ids.push(APP_INSTANCES[ai].instances[(seed + i + j) % 3].id)
+    }
+  })
+  return new Set(ids)
 }
 
 const timezones = [
@@ -54,26 +111,113 @@ const timezones = [
   'GMT +12:00 — New Zealand Standard Time',
 ]
 
-// ── Reusable field label ──
-const FieldLabel = ({ children }: { children: React.ReactNode }) => (
-  <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-1">{children}</div>
-)
+// ── Per-enterprise mock data ──
+const ENTERPRISE_DATA: Record<string, {
+  tradeName: string; legalName: string; website: string; email: string
+  pan: string; cin: string; timezone: string; domains: string[]
+}> = {
+  'Esther Fashions': {
+    tradeName: 'Esther Fashions',     legalName: 'Esther Fashions Private Limited',
+    website: '',                       email: 'admin@estherretail.in',
+    pan: '',                           cin: '',
+    timezone: 'GMT +05:30 — India Standard Time',
+    domains: ['rfad.in', 'retailwithesther.com'],
+  },
+  'Laksh Apparels': {
+    tradeName: 'Laksh Apparels',      legalName: 'Laksh Apparels India Private Limited',
+    website: 'https://lakshapparels.in', email: 'admin@lakshapparels.in',
+    pan: 'AABCL1234P',                cin: 'U17111DL2015PTC280123',
+    timezone: 'GMT +05:30 — India Standard Time',
+    domains: ['lakshapparels.in'],
+  },
+  'Aria Retail Co.': {
+    tradeName: 'Aria Retail Co.',     legalName: 'Aria Retail Company Private Limited',
+    website: 'https://ariaretail.com', email: 'admin@ariaretail.com',
+    pan: 'AARCA5678R',                cin: '',
+    timezone: 'GMT +05:30 — India Standard Time',
+    domains: ['ariaretail.com', 'aria.in'],
+  },
+}
 
 // ── Reusable section card ──
-const Card = ({ children }: { children: React.ReactNode }) => (
-  <div className="bg-white border border-[var(--color-border-default)] rounded-xl overflow-hidden w-full">{children}</div>
+const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
+  <div className={`bg-white rounded-xl shadow-[var(--shadow-sm)] overflow-hidden w-full ${className}`}>{children}</div>
 )
 
-export default function ProfileScreen({ onBack, onLogout }: Props) {
+export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, onLogout }: Props) {
   const [tab, setTab] = useState<ProfileTab>('profile')
   const [avOpen, setAvOpen] = useState(false)
   const [showLogout, setShowLogout] = useState(false)
+  const [showEntSwitcher, setShowEntSwitcher] = useState(false)
+
+  // ── Change Password panel ──
+  const [showPwPanel, setShowPwPanel]   = useState(false)
+  const [curPw, setCurPw]               = useState('')
+  const [newPw, setNewPw]               = useState('')
+  const [confirmPw, setConfirmPw]       = useState('')
+  const [showCur, setShowCur]           = useState(false)
+  const [showNew, setShowNew]           = useState(false)
+  const [showConfirm, setShowConfirm]   = useState(false)
+  const [pwTouched, setPwTouched]       = useState(false)
+
+  const [pwUpdatedToast, setPwUpdatedToast]       = useState(false)
+  const [pwDialogCountdown, setPwDialogCountdown] = useState(8)
+  const [pwPanelClosing, setPwPanelClosing]       = useState(false)
+
+  useEffect(() => {
+    const data = ENTERPRISE_DATA[enterprise]
+    if (!data) return
+    setTradeName(data.tradeName)
+    setLegalName(data.legalName)
+    setWebsite(data.website)
+    setEntEmail(data.email)
+    setPan(data.pan)
+    setCin(data.cin)
+    setTimezone(data.timezone)
+    setDomains(data.domains)
+    setEntEditing(false)
+  }, [enterprise])
+
+  useEffect(() => {
+    if (!pwUpdatedToast) return
+    setPwDialogCountdown(8)
+    const interval = setInterval(() => {
+      setPwDialogCountdown(n => {
+        if (n <= 1) { clearInterval(interval); setPwUpdatedToast(false); return 8 }
+        return n - 1
+      })
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [pwUpdatedToast])
+
+  const closePwPanel = () => {
+    setPwPanelClosing(true)
+    setTimeout(() => {
+      setShowPwPanel(false)
+      setPwPanelClosing(false)
+      setCurPw(''); setNewPw(''); setConfirmPw('')
+      setShowCur(false); setShowNew(false); setShowConfirm(false)
+      setPwTouched(false)
+    }, 210)
+  }
+
+  const submitPwChange = () => {
+    closePwPanel()
+    setPwUpdatedToast(true)
+  }
+
+  const pwLengthOk = newPw.length >= 7 && newPw.length <= 100
+  const pwMatchOk  = newPw.length > 0 && newPw === confirmPw
+
+  // ── Login history ──
+  const [showLoginHistory, setShowLoginHistory] = useState(false)
 
   // ── Profile tab state ──
   const [editing, setEditing] = useState(false)
-  const [name, setName]   = useState('Laksh Aeterna')
-  const [email, setEmail] = useState('leclerc@scuderia.in')
-  const [phone, setPhone] = useState('(+91) 94500 94500')
+  const [name, setName]         = useState('Laksh Aeterna')
+  const [email, setEmail]       = useState('leclerc@scuderia.in')
+  const [phone, setPhone]       = useState('(+91) 94500 94500')
+  const [username, setUsername] = useState('lakshaeterna')
   const [savedMsg, setSavedMsg] = useState(false)
 
   // ── Enterprise tab state ──
@@ -103,10 +247,38 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
   const [pwSaved, setPwSaved]         = useState(false)
 
   // ── Team ──
+  const [teamMembers, setTeamMembers] = useState(members)
+  const [showAddMember, setShowAddMember]         = useState(false)
+  const [addMemberToast, setAddMemberToast]       = useState<string | null>(null)
+  const [editTarget, setEditTarget]               = useState<MemberToEdit | null>(null)
+  const [editMemberToast, setEditMemberToast]     = useState<string | null>(null)
+  const [viewTarget, setViewTarget]               = useState<UserDetail | null>(null)
+  const [entSwitchToast, setEntSwitchToast]       = useState<string | null>(null)
+  const [showPlanLimitToast, setShowPlanLimitToast] = useState(false)
   const [teamSearch, setTeamSearch]   = useState('')
-  const [openMenu, setOpenMenu]       = useState<number | null>(null)
+  const [removeToast, setRemoveToast] = useState<string | null>(null)
 
-  const filteredMembers = members.filter(m =>
+  const removeUser = (email: string, name: string) => {
+    setTeamMembers(prev => prev.filter(m => m.email !== email))
+    setRemoveToast(name)
+    setTimeout(() => setRemoveToast(null), 2800)
+  }
+
+  const handleAddMember = (m: NewMember) => {
+    const newMember = {
+      name:  `${m.firstName} ${m.lastName}`,
+      you:   false,
+      email: m.email,
+      role:  m.role as 'member' | 'admin',
+      av:    m.firstName[0].toUpperCase(),
+      color: AVATAR_COLORS[teamMembers.length % AVATAR_COLORS.length],
+    }
+    setTeamMembers(prev => [...prev, newMember])
+    setAddMemberToast(`${m.firstName} ${m.lastName}`)
+    setTimeout(() => setAddMemberToast(null), 3000)
+  }
+
+  const filteredMembers = teamMembers.filter(m =>
     m.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
     m.email.toLowerCase().includes(teamSearch.toLowerCase())
   )
@@ -146,8 +318,9 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
   return (
     <div className="flex flex-col h-screen bg-[var(--color-bg-subtle)]">
 
-      {/* ── Topbar ── */}
-      <div className="h-14 bg-white border-b border-[var(--color-border-default)] px-9 flex items-center gap-3.5 shrink-0">
+      {/* ── Header: topbar + tabs as one frosted surface ── */}
+      <div className="shrink-0 z-10 bg-white/[0.82] backdrop-blur-md shadow-[var(--shadow-sm)]">
+      <div className="h-14 px-9 flex items-center gap-3.5">
         <div className="flex items-center gap-2.5">
           <GinesysLogo />
           <span className="text-sm font-semibold text-[var(--color-text-primary)]" style={{ letterSpacing: '-0.3px' }}>Ginesys One</span>
@@ -155,56 +328,74 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
 
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-xs text-[var(--color-text-secondary)] px-2.5 py-1.5 rounded-lg hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-brand)] transition-all"
+          className="flex items-center gap-1.5 text-xs text-[var(--color-text-secondary)] px-2.5 py-1.5 rounded-md hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-brand)] transition-all"
         >
           <svg width="14" height="14" fill="none" strokeWidth="2.5" viewBox="0 0 24 24" style={{ stroke: 'var(--color-brand-primary)' }}><polyline points="15 18 9 12 15 6" /></svg>
           Back to Apps
         </button>
 
         <div className="ml-auto flex items-center gap-3">
-          <div className="flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-text-secondary)] bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] px-3 py-1.5 rounded-full">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-[var(--color-text-tertiary)]"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" strokeWidth="2" /></svg>
-            Esther Fashions
-          </div>
+          {(() => {
+            const ent = ENTERPRISES.find(e => e.name === enterprise)
+            return (
+              <button
+                onClick={() => setShowEntSwitcher(true)}
+                className="flex items-center gap-2 text-xs font-medium text-[var(--color-text-primary)] bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-strong)] pl-1.5 pr-3 py-1 rounded-full hover:bg-white transition-colors cursor-pointer"
+              >
+                {ent && (
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-white shrink-0"
+                    style={{ background: ent.color, fontSize: '9px', fontWeight: 700, letterSpacing: 0 }}
+                  >
+                    {ent.initial}
+                  </div>
+                )}
+                {enterprise}
+                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="opacity-50 shrink-0">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            )
+          })()}
 
           <div className="relative">
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer"
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold cursor-pointer"
               style={{ background: 'var(--gradient-avatar-primary)' }}
               onClick={() => setAvOpen(!avOpen)}
             >L</div>
             {avOpen && (
-              <div className="absolute top-[calc(100%+10px)] right-0 w-[230px] bg-white border border-[var(--color-border-default)] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.10)] z-50 overflow-hidden">
-                <div className="flex items-center gap-3 p-4 bg-[var(--color-bg-brand-subtle)] border-b border-[var(--color-border-brand-subtle)]">
-                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: 'var(--gradient-avatar-primary)' }}>L</div>
-                  <div>
-                    <div className="text-sm font-bold text-[var(--color-text-primary)]">Laksh Aeterna</div>
-                    <span className="text-xs font-bold bg-[var(--color-role-holder-bg)] text-[var(--color-role-holder-text)] rounded-full px-2 py-0.5 mt-1 inline-block">Account Holder</span>
-                  </div>
-                </div>
-                <div className="p-1.5">
-                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[var(--color-text-primary)] cursor-pointer hover:bg-[var(--color-bg-subtle)]" onClick={() => { setAvOpen(false); onBack() }}>
-                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-[var(--color-text-secondary)]"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
-                    All Apps
-                  </div>
-                  <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-lg text-sm font-medium text-[var(--color-text-danger)] cursor-pointer hover:bg-[var(--color-bg-danger)]" onClick={() => { setAvOpen(false); setShowLogout(true) }}>
-                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                    Log out
-                  </div>
-                </div>
-              </div>
+              <AvatarDropdown
+                name="Laksh Aeterna"
+                roleLabel="Account Holder"
+                roleBg="var(--color-role-holder-bg)"
+                roleText="var(--color-role-holder-text)"
+                items={[
+                  {
+                    icon: <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>,
+                    label: 'All Apps',
+                    onClick: () => { setAvOpen(false); onBack() },
+                  },
+                  {
+                    icon: <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>,
+                    label: 'Log out',
+                    danger: true,
+                    onClick: () => { setAvOpen(false); setShowLogout(true) },
+                  },
+                ]}
+              />
             )}
           </div>
         </div>
       </div>
 
-      {/* ── Tab Bar ── */}
-      <div className="bg-white border-b border-[var(--color-border-default)] flex justify-center shrink-0">
+      {/* ── Tabs ── */}
+      <div className="flex justify-center">
         {(['profile', 'enterprise', 'team'] as ProfileTab[]).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-10 py-3.5 text-[13.5px] font-medium border-b-[2.5px] transition-colors capitalize ${
+            className={`px-10 py-3.5 text-sm font-medium border-b-[2.5px] transition-colors capitalize ${
               tab === t
                 ? 'text-[var(--color-text-brand)] border-[var(--color-border-brand)] font-semibold'
                 : 'text-[var(--color-text-tertiary)] border-transparent hover:text-[var(--color-text-secondary)]'
@@ -214,6 +405,7 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
           </button>
         ))}
       </div>
+      </div>{/* end unified header */}
 
       {/* ── Tab Body ── */}
       <div className="flex-1 overflow-y-auto bg-[var(--color-bg-subtle)]">
@@ -222,11 +414,12 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
           {/* ══ TAB: PROFILE ══ */}
           {tab === 'profile' && (
             <>
+              <Card>
               {/* User Info */}
-              <div className="flex gap-8 items-start">
+              <div className="p-6 flex gap-8 items-start">
                 {/* Avatar */}
                 <div className="shrink-0 flex flex-col items-center gap-2">
-                  <div className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-bold relative cursor-pointer group" style={{ background: 'var(--gradient-avatar-primary)' }}>
+                  <div className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-semibold relative cursor-pointer group" style={{ background: 'var(--gradient-avatar-primary)' }}>
                     L
                     <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
@@ -237,60 +430,79 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
 
                 {/* Fields */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-lg font-bold mb-5" style={{ letterSpacing: '-0.4px' }}>User Information</div>
+                  <div className="text-xl font-semibold mb-5" style={{ letterSpacing: '-0.4px' }}>User Information</div>
                   <div className="grid grid-cols-2 gap-5 mb-5">
                     <div>
                       <FieldLabel>Name</FieldLabel>
                       {editing
-                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)]" value={name} onChange={e => setName(e.target.value)} />
-                        : <div className="text-[13.5px] font-medium text-[var(--color-text-primary)]">{name}</div>
+                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm font-normal text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all" value={name} onChange={e => setName(e.target.value)} />
+                        : <div className="text-sm font-normal text-[var(--color-text-primary)]">{name}</div>
                       }
                     </div>
                     <div>
                       <FieldLabel>
                         <span className="flex items-center gap-1.5">
                           Role
-                          {editing && <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-[var(--color-text-tertiary)] bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] rounded px-1.5 py-0.5"><svg width="9" height="9" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>Ginesys-assigned</span>}
+                          {editing && <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-tertiary)] bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] rounded px-1.5 py-0.5"><svg width="9" height="9" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>Locked</span>}
                         </span>
                       </FieldLabel>
-                      <div className="text-[13.5px] font-medium text-[var(--color-text-primary)]">Account Holder</div>
+                      <div className="text-sm font-normal text-[var(--color-text-primary)]">Account Holder</div>
                     </div>
                     <div>
                       <FieldLabel>Email</FieldLabel>
                       {editing
-                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)]" value={email} onChange={e => setEmail(e.target.value)} />
-                        : <div className="text-[13.5px] font-medium text-[var(--color-text-primary)]">{email}</div>
+                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm font-normal text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all" value={email} onChange={e => setEmail(e.target.value)} />
+                        : <div className="text-sm font-normal text-[var(--color-text-primary)]">{email}</div>
                       }
                     </div>
                     <div>
                       <FieldLabel>Phone</FieldLabel>
                       {editing
-                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)]" value={phone} onChange={e => setPhone(e.target.value)} />
-                        : <div className="text-[13.5px] font-medium text-[var(--color-text-primary)]">{phone}</div>
+                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm font-normal text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all" value={phone} onChange={e => setPhone(e.target.value)} />
+                        : <div className="text-sm font-normal text-[var(--color-text-primary)]">{phone}</div>
                       }
                     </div>
+                    <div>
+                      <FieldLabel>Username</FieldLabel>
+                      {editing
+                        ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm font-normal text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all" value={username} onChange={e => setUsername(e.target.value)} />
+                        : <div className="text-sm font-normal text-[var(--color-text-primary)]">{username}</div>
+                      }
+                    </div>
+                    {!editing && (
+                      <div>
+                        <FieldLabel>Last Login</FieldLabel>
+                        <div className="text-sm font-normal text-[var(--color-text-primary)]">17 Mar 2026&nbsp; 00:00:00 PM</div>
+                        <button
+                          onClick={() => setShowLoginHistory(true)}
+                          className="text-xs text-[var(--color-text-brand)] hover:underline cursor-pointer mt-0.5"
+                        >
+                          See history
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center gap-2.5">
                     {!editing ? (
                       <>
-                        <button onClick={() => setEditing(true)} className="h-9 px-4 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all hover:-translate-y-px">
+                        <button onClick={() => setEditing(true)} className="h-10 px-4 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                           Edit Info
                         </button>
-                        <button className="h-9 px-4 rounded-[9px] bg-transparent border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] hover:border-[var(--color-border-strong)] transition-all">
+                        <button onClick={() => setShowPwPanel(true)} className="h-10 px-4 rounded-md bg-transparent border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] hover:border-[var(--color-border-strong)] transition-all">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
                           Change Password
                         </button>
                       </>
                     ) : (
                       <>
-                        <button onClick={saveProfile} className="h-9 px-4 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
+                        <button onClick={saveProfile} className="h-10 px-4 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                           Save Changes
                         </button>
-                        <button onClick={() => setEditing(false)} className="h-9 px-4 rounded-[9px] bg-transparent border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] transition-all">
+                        <button onClick={() => setEditing(false)} className="h-10 px-4 rounded-md bg-transparent border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] transition-all">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                           Discard
                         </button>
@@ -306,23 +518,27 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
                 </div>
               </div>
 
-              <div className="h-px bg-[var(--color-border-default)]" />
+              </Card>
 
               {/* 2FA */}
-              <div className="flex flex-col gap-3">
-                <div className="text-base font-bold" style={{ letterSpacing: '-0.3px' }}>Two-factor authentication</div>
-                <div className="text-[12.5px] text-[var(--color-text-secondary)] leading-relaxed">Require an additional security code while logging in. Adds a second layer of protection beyond your password.</div>
-                <div className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-[9px] bg-[var(--color-bg-brand-subtle)] border border-[var(--color-border-brand-field)] text-[12.5px] font-semibold text-[var(--color-text-brand)] w-fit">
-                  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
-                  Active for authenticator app
+              <Card>
+                <div className="p-6 pb-2">
+                  <div className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Two-factor authentication</div>
+                  <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Require an additional security code while logging in. Adds a second layer of protection beyond your password.</div>
                 </div>
-                <div>
-                  <button className="h-9 px-4 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all hover:-translate-y-px">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
-                    Configure
-                  </button>
+                <div className="p-6 flex flex-col gap-4">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-md bg-[var(--color-bg-brand-subtle)] border border-[var(--color-border-brand-field)] text-xs font-semibold text-[var(--color-text-brand)] w-fit">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
+                    Active for authenticator app
+                  </div>
+                  <div>
+                    <button className="h-10 px-4 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
+                      Configure
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </Card>
             </>
           )}
 
@@ -330,10 +546,11 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
           {tab === 'enterprise' && (
             <>
               {/* Enterprise Info */}
-              <div className="flex gap-8 items-start">
+              <Card>
+              <div className="p-6 flex gap-8 items-start">
                 <div className="shrink-0 flex flex-col items-center gap-2">
-                  <div className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-bold relative cursor-pointer group" style={{ background: 'linear-gradient(135deg, var(--color-blue-700), var(--color-blue-600))' }}>
-                    E
+                  <div className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-semibold relative cursor-pointer group" style={{ background: ENTERPRISES.find(e => e.name === enterprise)?.color ?? 'linear-gradient(135deg,#5a8fe8,#3b6fd4)' }}>
+                    {ENTERPRISES.find(e => e.name === enterprise)?.initial ?? enterprise[0]}
                     <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
                     </div>
@@ -342,7 +559,7 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="text-lg font-bold mb-5" style={{ letterSpacing: '-0.4px' }}>Enterprise Information</div>
+                  <div className="text-xl font-semibold mb-5" style={{ letterSpacing: '-0.4px' }}>Enterprise Information</div>
                   <div className="grid grid-cols-2 gap-5 mb-5">
                     {[
                       { label: 'Trade Name',  val: tradeName,  set: setTradeName,  ph: '' },
@@ -355,8 +572,8 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
                       <div key={label}>
                         <FieldLabel>{label}</FieldLabel>
                         {entEditing
-                          ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)]" value={val} onChange={e => set(e.target.value)} placeholder={ph} />
-                          : <div className={`text-[13px] font-medium ${val ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-tertiary)] italic'}`}>{val || 'Not specified'}</div>
+                          ? <input className="w-full h-[34px] px-2.5 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm font-normal text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all" value={val} onChange={e => set(e.target.value)} placeholder={ph} />
+                          : <div className={`text-sm font-normal ${val ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-tertiary)] italic'}`}>{val || 'Not specified'}</div>
                         }
                       </div>
                     ))}
@@ -368,43 +585,43 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
                         <div className="relative">
                           <button
                             onClick={() => setTzOpen(!tzOpen)}
-                            className="w-full h-[34px] px-2.5 pr-8 border-[1.5px] border-[var(--color-border-default)] rounded-lg text-sm font-medium text-[var(--color-text-primary)] bg-white text-left outline-none focus:border-[var(--color-border-brand)] truncate"
+                            className="w-full h-[34px] px-2.5 pr-8 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm font-normal text-[var(--color-text-primary)] bg-white text-left outline-none focus:border-[var(--color-border-brand)] truncate"
                           >
                             {timezone}
                           </button>
                           <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-tertiary)]" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9" /></svg>
                           {tzOpen && (
-                            <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white border border-[var(--color-border-default)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.1)] overflow-hidden">
+                            <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-white rounded-xl shadow-[var(--shadow-md)] overflow-hidden">
                               <div className="border-b border-[var(--color-border-muted)]">
                                 <input autoFocus className="w-full h-9 px-3 text-xs outline-none bg-transparent" placeholder="Search timezone…" value={tzSearch} onChange={e => setTzSearch(e.target.value)} />
                               </div>
                               <div className="max-h-44 overflow-y-auto p-1">
                                 {timezones.filter(t => t.toLowerCase().includes(tzSearch.toLowerCase())).map(t => (
-                                  <div key={t} onClick={() => { setTimezone(t); setTzOpen(false); setTzSearch('') }} className={`px-2.5 py-2 rounded-lg text-xs cursor-pointer transition-colors ${t === timezone ? 'font-semibold text-[var(--color-text-brand)] bg-[var(--color-bg-brand-subtle)]' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'}`}>{t}</div>
+                                  <div key={t} onClick={() => { setTimezone(t); setTzOpen(false); setTzSearch('') }} className={`px-2.5 py-2 rounded-md text-xs cursor-pointer transition-colors ${t === timezone ? 'font-semibold text-[var(--color-text-brand)] bg-[var(--color-bg-brand-subtle)]' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'}`}>{t}</div>
                                 ))}
                               </div>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="text-[13px] font-medium text-[var(--color-text-primary)]">{timezone}</div>
+                        <div className="text-sm font-normal text-[var(--color-text-primary)]">{timezone}</div>
                       )}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2.5">
                     {!entEditing ? (
-                      <button onClick={() => setEntEditing(true)} className="h-9 px-4 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all hover:-translate-y-px">
+                      <button onClick={() => setEntEditing(true)} className="h-10 px-4 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
                         <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                         Edit Info
                       </button>
                     ) : (
                       <>
-                        <button onClick={saveEnt} className="h-9 px-4 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
+                        <button onClick={saveEnt} className="h-10 px-4 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
                           Save Changes
                         </button>
-                        <button onClick={() => setEntEditing(false)} className="h-9 px-4 rounded-[9px] border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] transition-all">
+                        <button onClick={() => setEntEditing(false)} className="h-10 px-4 rounded-md border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] transition-all">
                           <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                           Discard
                         </button>
@@ -414,24 +631,23 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
                   </div>
                 </div>
               </div>
-
-              <div className="h-px bg-[var(--color-border-default)]" />
+              </Card>
 
               {/* Domain Policy */}
               <Card>
-                <div className="px-4 py-3.5 border-b border-[var(--color-border-muted)]">
-                  <div className="text-base font-bold mb-1" style={{ letterSpacing: '-0.3px' }}>Domain Policy</div>
-                  <div className="text-[12.5px] text-[var(--color-text-secondary)] leading-relaxed">Authorised domains for SSO username emails eligible to access this enterprise.</div>
+                <div className="p-6 pb-2">
+                  <div className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Domain Policy</div>
+                  <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Authorised domains for SSO username emails eligible to access this enterprise.</div>
                 </div>
-                <div className="p-4 flex flex-col gap-4">
+                <div className="p-6 flex flex-col gap-4">
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Authorised Domains</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Authorised Domains</div>
                     <div
-                      className="min-h-[44px] px-2.5 py-1.5 border-[1.5px] border-[var(--color-border-default)] rounded-xl flex flex-wrap items-center gap-1.5 cursor-text focus-within:border-[var(--color-border-brand)] focus-within:shadow-[var(--shadow-focus-brand-field)] bg-white"
+                      className="min-h-[44px] px-2.5 py-1.5 border-[1.5px] border-[var(--color-border-default)] rounded-md flex flex-wrap items-center gap-1.5 cursor-text focus-within:border-[var(--color-border-brand)] focus-within:shadow-[var(--shadow-focus-brand-field)] bg-white"
                       onClick={() => document.getElementById('domainInput')?.focus()}
                     >
                       {domains.map(d => (
-                        <span key={d} className="inline-flex items-center gap-1.5 bg-[var(--color-bg-brand-subtle)] border border-[var(--color-border-brand-field)] text-[var(--color-text-brand)] rounded-md px-2.5 py-1 text-xs font-medium">
+                        <span key={d} className="inline-flex items-center gap-1.5 bg-[var(--color-bg-brand-subtle)] border border-[var(--color-border-brand-field)] text-[var(--color-text-brand)] rounded-md px-2.5 py-1 text-sm font-medium">
                           {d}
                           <button onClick={() => { setDomains(domains.filter(x => x !== d)); setDomainDirty(true) }} className="text-[var(--color-text-brand)] opacity-60 hover:opacity-100 text-sm leading-none">×</button>
                         </span>
@@ -453,14 +669,14 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
                         }}
                       />
                     </div>
-                    <div className="text-[11px] text-[var(--color-text-tertiary)] mt-1.5">Press <kbd className="bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] rounded px-1 py-0.5 font-mono text-[10px]">Enter</kbd> to add · <kbd className="bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] rounded px-1 py-0.5 font-mono text-[10px]">Backspace</kbd> to remove last</div>
+                    <div className="text-xs text-[var(--color-text-tertiary)] mt-1.5">Press <kbd className="bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] rounded px-1 py-0.5 font-mono text-[10px]">Enter</kbd> to add · <kbd className="bg-[var(--color-bg-subtle)] border border-[var(--color-border-default)] rounded px-1 py-0.5 font-mono text-[10px]">Backspace</kbd> to remove last</div>
                   </div>
                 </div>
                 {(domainDirty || domainSaved) && (
-                  <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--color-border-muted)] bg-[var(--color-bg-subtle)]">
+                  <div className="flex items-center gap-2 px-6 py-3 border-t border-[var(--color-border-muted)] bg-[var(--color-bg-subtle)]">
                     {domainDirty && <>
-                      <button onClick={saveDomain} className="h-[34px] px-3.5 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all"><svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>Save Changes</button>
-                      <button onClick={() => { setDomainDirty(false); setDomainInput('') }} className="h-[34px] px-3.5 rounded-[9px] border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-xs font-semibold hover:bg-white transition-all">Discard</button>
+                      <button onClick={saveDomain} className="h-10 px-3.5 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all"><svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>Save Changes</button>
+                      <button onClick={() => { setDomainDirty(false); setDomainInput('') }} className="h-10 px-3.5 rounded-md border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-sm font-semibold hover:bg-white transition-all">Discard</button>
                     </>}
                     {domainSaved && <span className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-success)]"><svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>Domain policy updated</span>}
                   </div>
@@ -469,30 +685,30 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
 
               {/* Password Policy */}
               <Card>
-                <div className="px-4 py-3.5 border-b border-[var(--color-border-muted)]">
-                  <div className="text-base font-bold mb-1" style={{ letterSpacing: '-0.3px' }}>Password Policy</div>
-                  <div className="text-[12.5px] text-[var(--color-text-secondary)] leading-relaxed">Define password complexity requirements for all users in this enterprise.</div>
+                <div className="p-6 pb-2">
+                  <div className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Password Policy</div>
+                  <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Define password complexity requirements for all users in this enterprise.</div>
                 </div>
-                <div className="p-4 flex flex-col gap-4">
+                <div className="p-6 flex flex-col gap-6">
                   {/* Min length */}
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Minimum Password Length</div>
-                    <div className="inline-flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-[9px] overflow-hidden focus-within:border-[var(--color-border-brand)]">
-                      <button onClick={() => { setMinLen(Math.max(6, minLen - 1)); setPwDirty(true) }} className="w-9 h-[38px] bg-[var(--color-bg-subtle)] text-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-brand-subtle)] hover:text-[var(--color-text-brand)] flex items-center justify-center transition-colors">−</button>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Minimum Password Length</div>
+                    <div className="inline-flex items-center border-[1.5px] border-[var(--color-border-default)] rounded-md overflow-hidden focus-within:border-[var(--color-border-brand)]">
+                      <button onClick={() => { setMinLen(Math.max(6, minLen - 1)); setPwDirty(true) }} className="w-9 h-10 bg-[var(--color-bg-subtle)] text-base text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-brand-subtle)] hover:text-[var(--color-text-brand)] flex items-center justify-center transition-colors">−</button>
                       <input className="w-12 text-center border-none font-mono text-base font-semibold text-[var(--color-text-primary)] bg-white outline-none p-0" type="number" value={minLen} onChange={e => { setMinLen(Math.min(32, Math.max(6, +e.target.value))); setPwDirty(true) }} />
-                      <button onClick={() => { setMinLen(Math.min(32, minLen + 1)); setPwDirty(true) }} className="w-9 h-[38px] bg-[var(--color-bg-subtle)] text-lg text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-brand-subtle)] hover:text-[var(--color-text-brand)] flex items-center justify-center transition-colors">+</button>
+                      <button onClick={() => { setMinLen(Math.min(32, minLen + 1)); setPwDirty(true) }} className="w-9 h-10 bg-[var(--color-bg-subtle)] text-base text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-brand-subtle)] hover:text-[var(--color-text-brand)] flex items-center justify-center transition-colors">+</button>
                     </div>
                   </div>
 
                   {/* Char requirements */}
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Require at least one of the following</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Require at least one of the following</div>
                     <div className="flex flex-wrap gap-2">
                       {charLabels.map(({ label, code }, i) => (
                         <button
                           key={i}
                           onClick={() => toggleCharPill(i)}
-                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-[9px] border-[1.5px] text-xs font-medium transition-all ${
+                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-md border-[1.5px] text-sm font-medium transition-all ${
                             charPills[i]
                               ? 'bg-[var(--color-bg-info)] border-[var(--color-indigo-400-border)] text-[var(--color-text-info)]'
                               : 'bg-white border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)]'
@@ -509,28 +725,28 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
 
                   {/* 2FA toggle */}
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Two-Factor Authentication</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Additional Settings</div>
                     <div
                       onClick={() => { setTfa(!tfa); setPwDirty(true) }}
-                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border-[1.5px] cursor-pointer transition-all ${tfa ? 'border-[var(--color-indigo-400-border)] bg-[var(--color-bg-info)]' : 'border-[var(--color-border-default)]'}`}
+                      className="flex items-center gap-3 py-1 cursor-pointer"
                     >
                       <div className="flex-1">
-                        <div className={`text-[12.5px] font-semibold transition-colors ${tfa ? 'text-[var(--color-text-info)]' : 'text-[var(--color-text-primary)]'}`}>Make 2FA mandatory for all users</div>
-                        <div className="text-[11.5px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">Users will be prompted to set up 2FA on their next login if not already configured.</div>
+                        <div className="text-base font-medium text-[var(--color-text-primary)]">Make 2FA mandatory for all users</div>
+                        <div className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">Users will be prompted to set up 2FA on their next login if not already configured.</div>
                       </div>
                       <div onClick={e => e.stopPropagation()} className="relative w-[38px] h-[22px] shrink-0">
                         <input type="checkbox" className="sr-only" checked={tfa} onChange={() => { setTfa(!tfa); setPwDirty(true) }} />
                         <div className={`absolute inset-0 rounded-full transition-colors ${tfa ? 'bg-[var(--color-text-info)]' : 'bg-[var(--color-border-default)]'}`} />
-                        <div className={`absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)] transition-transform ${tfa ? 'translate-x-[19px]' : 'translate-x-[3px]'}`} />
+                        <div className={`absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-[var(--shadow-xs)] transition-transform ${tfa ? 'translate-x-[19px]' : 'translate-x-[3px]'}`} />
                       </div>
                     </div>
                   </div>
                 </div>
                 {(pwDirty || pwSaved) && (
-                  <div className="flex items-center gap-2 px-4 py-3 border-t border-[var(--color-border-muted)] bg-[var(--color-bg-subtle)]">
+                  <div className="flex items-center gap-2 px-6 py-3 border-t border-[var(--color-border-muted)] bg-[var(--color-bg-subtle)]">
                     {pwDirty && <>
-                      <button onClick={savePw} className="h-[34px] px-3.5 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all"><svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>Save Changes</button>
-                      <button onClick={() => setPwDirty(false)} className="h-[34px] px-3.5 rounded-[9px] border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-xs font-semibold hover:bg-white transition-all">Discard</button>
+                      <button onClick={savePw} className="h-10 px-3.5 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all"><svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>Save Changes</button>
+                      <button onClick={() => setPwDirty(false)} className="h-10 px-3.5 rounded-md border-[1.5px] border-[var(--color-border-default)] text-[var(--color-text-secondary)] text-sm font-semibold hover:bg-white transition-all">Discard</button>
                     </>}
                     {pwSaved && <span className="flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-success)]"><svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>Password policy updated</span>}
                   </div>
@@ -542,63 +758,85 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
           {/* ══ TAB: TEAM ══ */}
           {tab === 'team' && (
             <>
+              {/* Plan limit banner */}
+              {showPlanLimitToast && (
+                <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl bg-[var(--color-status-warning-bg)] border border-[var(--color-status-warning-border)] banner-enter">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="shrink-0 mt-0.5 text-[var(--color-status-warning-text)]"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <div className="flex-1 flex flex-col gap-1">
+                    <span className="text-sm font-semibold text-[var(--color-text-primary)]">User limit reached</span>
+                    <span className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Your Ginesys One plan supports up to 8 users. Upgrade your plan to invite more people.</span>
+                    <button className="mt-1 self-start text-xs font-semibold text-[var(--color-text-brand)] hover:underline cursor-pointer">Upgrade plan</button>
+                  </div>
+                  <button onClick={() => setShowPlanLimitToast(false)} className="w-8 h-8 flex items-center justify-center rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--color-status-warning-border)] hover:text-[var(--color-text-secondary)] cursor-pointer shrink-0 transition-colors -mt-0.5 -mr-1">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              )}
               <div className="flex items-center gap-3">
-                <div className="text-xl font-bold flex items-center gap-2.5" style={{ letterSpacing: '-0.5px' }}>
+                <div className="text-xl font-semibold flex items-center gap-2.5" style={{ letterSpacing: '-0.5px' }}>
                   Team
-                  <span className="text-xs font-bold text-[var(--color-text-secondary)] bg-[var(--color-border-muted)] border border-[var(--color-border-default)] rounded-full px-2.5 py-0.5">{members.length}</span>
+                  <span className="text-xs font-semibold text-[var(--color-text-secondary)] bg-[var(--color-border-muted)] border border-[var(--color-border-default)] rounded-full px-2.5 py-0.5">{teamMembers.length}</span>
                 </div>
                 <div className="ml-auto flex gap-2.5">
-                  <button className="h-[34px] px-4 rounded-[9px] border-[1.5px] border-[var(--color-border-default)] text-xs font-medium text-[var(--color-text-secondary)] flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] transition-all bg-transparent">
+                  <button className="h-10 px-4 rounded-md border-[1.5px] border-[var(--color-border-default)] text-sm font-medium text-[var(--color-text-secondary)] flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] transition-all bg-transparent">
                     <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                     Bulk Import
                   </button>
-                  <button className="h-[34px] px-4 rounded-[9px] bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
+                  <button onClick={() => { if (teamMembers.length >= 8) { setShowPlanLimitToast(true) } else { setShowAddMember(true) } }} className="h-10 px-4 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-all">
                     <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                    Add Member
+                    Add User
                   </button>
                 </div>
               </div>
 
               {/* Search */}
-              <div className="flex items-center gap-2 border-[1.5px] border-[var(--color-border-default)] rounded-xl px-3.5 h-10 bg-white focus-within:border-[var(--color-border-brand)] transition-colors -mt-4">
+              <div className="flex items-center gap-2 border-[1.5px] border-[var(--color-border-default)] rounded-md px-3.5 h-10 bg-white focus-within:border-[var(--color-border-brand)] transition-colors -mt-4">
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-[var(--color-text-tertiary)] shrink-0"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                 <input className="flex-1 border-none bg-transparent text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)]" placeholder="Search team by name or email…" value={teamSearch} onChange={e => setTeamSearch(e.target.value)} />
               </div>
 
               {/* Team list */}
-              <Card>
+              <Card className="overflow-visible">
                 {filteredMembers.length === 0 ? (
                   <div className="py-8 text-center text-xs text-[var(--color-text-tertiary)] italic">No members match your search</div>
                 ) : filteredMembers.map((m, i) => (
-                  <div key={m.email} className={`flex items-center gap-3.5 px-4 py-3.5 hover:bg-[var(--color-bg-page)] transition-colors relative group ${i < filteredMembers.length - 1 ? 'border-b border-[var(--color-border-muted)]' : ''}`}>
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0" style={{ background: m.color }}>{m.av}</div>
-                    <div>
-                      <div className="text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:underline">
+                  <div key={m.email} onClick={() => setViewTarget(m)} className={`flex items-center gap-3.5 px-4 py-3.5 hover:bg-[var(--color-bg-page)] transition-colors relative cursor-pointer ${i < filteredMembers.length - 1 ? 'border-b border-[var(--color-border-muted)]' : ''} ${i === 0 ? 'rounded-t-xl' : ''} ${i === filteredMembers.length - 1 ? 'rounded-b-xl' : ''}`}>
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: m.color }}>{m.av}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-[var(--color-text-primary)] truncate">
                         {m.name}{m.you && <span className="text-xs text-[var(--color-text-tertiary)] font-normal ml-1">(You)</span>}
                       </div>
-                      <div className="text-xs text-[var(--color-text-tertiary)] mt-0.5">{m.email}</div>
+                      <div className="text-xs text-[var(--color-text-tertiary)] mt-0.5 truncate">{m.email}</div>
                     </div>
-                    <div className="ml-auto flex items-center gap-3">
-                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold ${roleCls[m.role]}`}>{roleLbl[m.role]}</span>
-                      <div className="relative opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => setOpenMenu(openMenu === i ? null : i)}
-                          className="w-[30px] h-[30px] rounded-lg border-none bg-transparent flex items-center justify-center text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-secondary)] transition-all cursor-pointer"
-                        >
-                          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /></svg>
-                        </button>
-                        {openMenu === i && (
-                          <div className="absolute right-0 top-9 z-50 bg-white border border-[var(--color-border-default)] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.12)] min-w-[160px] overflow-hidden">
-                            {[
-                              { label: 'Edit User', danger: false },
-                              { label: 'Reset Password', danger: false },
-                              { label: 'Remove User', danger: true },
-                            ].map(({ label, danger }) => (
-                              <div key={label} onClick={() => setOpenMenu(null)} className={`px-3.5 py-2.5 text-xs font-medium cursor-pointer transition-colors ${danger ? 'text-[var(--color-text-danger)] hover:bg-[var(--color-bg-danger)]' : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)]'}`}>{label}</div>
+                    {(() => {
+                      const sel = seedInstances(m.name)
+                      const assignedApps = APP_INSTANCES.filter(a => a.instances.some(i => sel.has(i.id)))
+                      const visibleIcons = assignedApps.slice(0, 3)
+                      return (
+                        <div className="hidden sm:flex w-56 shrink-0 items-center gap-2.5">
+                          <div className="flex items-center w-[68px] shrink-0">
+                            {visibleIcons.map((a, idx) => (
+                              <img
+                                key={a.slug}
+                                src={a.icon}
+                                alt={a.app}
+                                title={a.app}
+                                className="w-7 h-7 rounded-full object-contain border-2 border-white bg-white shrink-0"
+                                style={{ marginLeft: idx === 0 ? 0 : -8, zIndex: visibleIcons.length - idx }}
+                              />
                             ))}
                           </div>
-                        )}
-                      </div>
+                          <span className="text-xs text-[var(--color-text-tertiary)] w-14 shrink-0">
+                            {assignedApps.length} app{assignedApps.length !== 1 ? 's' : ''}
+                          </span>
+                          <span className="text-xs text-[var(--color-text-tertiary)]">
+                            {sel.size} instance{sel.size !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      )
+                    })()}
+                    <div className="w-32 shrink-0 flex justify-end">
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${roleCls[m.role]}`}>{roleLbl[m.role]}</span>
                     </div>
                   </div>
                 ))}
@@ -608,18 +846,228 @@ export default function ProfileScreen({ onBack, onLogout }: Props) {
         </div>
       </div>
 
+      {/* ── Remove Member Modal ── */}
+
+      {/* ── Remove Toast ── */}
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${removeToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M2 21a8 8 0 0 1 11.873-7"/><circle cx="10" cy="8" r="5"/><path d="m17 17 5 5"/><path d="m22 17-5 5"/></svg>
+        {removeToast} was removed from the team
+      </div>
+
+      {/* ── Enterprise Switch Toast ── */}
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${entSwitchToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
+          <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        Switched to {entSwitchToast}
+      </div>
+
+      {/* ── Add Member Toast ── */}
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${addMemberToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
+          <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        {addMemberToast} added to the team
+      </div>
+
+      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${editMemberToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
+          <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        {editMemberToast} updated successfully
+      </div>
+
+      {/* ── Add Member ── */}
+      {showAddMember && (
+        <AddMemberDrawer
+          onClose={() => setShowAddMember(false)}
+          onSave={handleAddMember}
+        />
+      )}
+
+      {editTarget && (
+        <EditMemberDrawer
+          member={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSave={() => {
+            setEditMemberToast(editTarget.name)
+            setTimeout(() => setEditMemberToast(null), 2800)
+          }}
+        />
+      )}
+
+      {viewTarget && (
+        <UserDetailsDrawer
+          user={viewTarget}
+          onClose={() => setViewTarget(null)}
+          onEdit={() => setEditTarget({ name: viewTarget.name, email: viewTarget.email, role: viewTarget.role })}
+          onPromoteDemote={(newRole) => setTeamMembers(prev => prev.map(m => m.email === viewTarget.email ? { ...m, role: newRole } : m))}
+          onResetPassword={() => {}}
+          onRemove={() => { removeUser(viewTarget.email, viewTarget.name); setViewTarget(null) }}
+        />
+      )}
+
+      {/* ── Login History ── */}
+      {showLoginHistory && (
+        <LoginHistoryDrawer onClose={() => setShowLoginHistory(false)} />
+      )}
+
+      {/* ── Enterprise Switcher ── */}
+      {showEntSwitcher && (
+        <EnterpriseSwitcher
+          enterprise={enterprise}
+          onSwitch={(name) => { onSwitchEnterprise(name); setShowEntSwitcher(false); setEntSwitchToast(name); setTimeout(() => setEntSwitchToast(null), 2800) }}
+          onClose={() => setShowEntSwitcher(false)}
+        />
+      )}
+
       {/* ── Logout Modal ── */}
       {showLogout && (
-        <div className="fixed inset-0 z-[200] bg-black/35 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowLogout(false)}>
-          <div className="bg-white rounded-[18px] p-8 pb-6 w-[340px] text-center shadow-[0_24px_60px_rgba(0,0,0,0.18)]" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[200] bg-black/30 backdrop-blur-[1px] flex items-center justify-center" onClick={() => setShowLogout(false)}>
+          <div className="bg-white p-8 pb-6 w-[340px] text-center shadow-[var(--shadow-xl)]" style={{ borderRadius: 'var(--radius-2xl)' }} onClick={e => e.stopPropagation()}>
             <div className="w-[52px] h-[52px] rounded-2xl bg-[var(--color-bg-danger)] flex items-center justify-center mx-auto mb-4 text-[var(--color-text-danger)]">
               <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             </div>
-            <div className="text-[17px] font-bold text-[var(--color-text-primary)] mb-2" style={{ letterSpacing: '-0.3px' }}>Log out of Ginesys One?</div>
+            <div className="text-base font-semibold text-[var(--color-text-primary)] mb-2" style={{ letterSpacing: '-0.3px' }}>Log out of Ginesys One?</div>
             <div className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-6">You'll be returned to the login screen. Any unsaved changes will be lost.</div>
             <div className="flex gap-2.5">
-              <button className="flex-1 h-10 rounded-xl bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-default)] text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:border-[var(--color-border-strong)] transition-colors" onClick={() => setShowLogout(false)}>Cancel</button>
-              <button className="flex-1 h-10 rounded-xl bg-[var(--color-text-danger)] border-[1.5px] border-[var(--color-text-danger)] text-sm font-semibold text-white cursor-pointer hover:bg-[var(--color-border-danger-hover)] transition-colors" onClick={() => { setShowLogout(false); onLogout() }}>Log out</button>
+              <button className="flex-1 h-10 rounded-md bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-default)] text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:border-[var(--color-border-strong)] transition-colors" onClick={() => setShowLogout(false)}>Cancel</button>
+              <button className="flex-1 h-10 rounded-md bg-[var(--color-text-danger)] border-[1.5px] border-[var(--color-text-danger)] text-sm font-semibold text-white cursor-pointer hover:bg-[var(--color-border-danger-hover)] transition-colors" onClick={() => { setShowLogout(false); onLogout() }}>Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Password Updated Dialog ── */}
+      {pwUpdatedToast && (
+        <div className="fixed inset-0 z-[400] bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
+          <div className="bg-white p-8 pb-6 w-[340px] text-center shadow-[var(--shadow-xl)]" style={{ borderRadius: 'var(--radius-2xl)' }}>
+            <div className="w-[52px] h-[52px] rounded-2xl bg-[var(--color-bg-brand-subtle)] flex items-center justify-center mx-auto mb-4 text-[var(--color-text-brand)]">
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div className="text-xl font-bold text-[var(--color-text-primary)] mb-2" style={{ letterSpacing: '-0.3px' }}>Password updated</div>
+            <div className="text-sm text-[var(--color-text-secondary)] leading-relaxed mb-6">Your password has been changed. Log out and sign back in to apply it across all active sessions.</div>
+            <div className="flex gap-2.5">
+              <button className="flex-1 h-10 rounded-md bg-[var(--color-bg-subtle)] border-[1.5px] border-[var(--color-border-default)] text-sm font-semibold text-[var(--color-text-primary)] cursor-pointer hover:border-[var(--color-border-strong)] transition-colors" onClick={() => setPwUpdatedToast(false)}>Stay logged in ({pwDialogCountdown}s)</button>
+              <button className="flex-1 h-10 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-sm font-semibold text-white cursor-pointer hover:bg-[var(--color-brand-primary-hover)] transition-colors" onClick={() => { setPwUpdatedToast(false); onLogout() }}>Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Change Password Drawer ── */}
+      {showPwPanel && (
+        <div className={`fixed inset-0 z-[300] bg-black/30 backdrop-blur-[1px] flex justify-end ${pwPanelClosing ? 'overlay-out' : 'overlay-in'}`} onClick={closePwPanel}>
+          <div
+            className={`relative h-full w-[420px] bg-white flex flex-col shadow-[var(--shadow-xl)] ${pwPanelClosing ? 'slide-out-right' : 'slide-in-right'}`}
+            style={{ borderRadius: 0 }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-5">
+              <div className="text-xl font-semibold text-[var(--color-text-primary)]" style={{ letterSpacing: '-0.3px' }}>Change Password</div>
+              <button onClick={closePwPanel} className="w-8 h-8 flex items-center justify-center rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-secondary)] transition-colors">
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Fields */}
+            <div className="flex-1 overflow-y-auto px-6 flex flex-col gap-5">
+
+              {/* Current Password */}
+              <div className="flex flex-col">
+                <FieldLabel>Current Password</FieldLabel>
+                <div className="relative">
+                  <input
+                    type={showCur ? 'text' : 'password'}
+                    value={curPw}
+                    onChange={e => setCurPw(e.target.value)}
+                    placeholder="Enter current password"
+                    className="w-full h-10 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all placeholder:text-[var(--color-text-placeholder)]"
+                  />
+                  <button onClick={() => setShowCur(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors">
+                    {showCur
+                      ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div className="flex flex-col">
+                <FieldLabel>New Password</FieldLabel>
+                <div className="relative">
+                  <input
+                    type={showNew ? 'text' : 'password'}
+                    value={newPw}
+                    onChange={e => setNewPw(e.target.value)}
+                    onBlur={() => setPwTouched(true)}
+                    placeholder="Enter new password"
+                    className="w-full h-10 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all placeholder:text-[var(--color-text-placeholder)]"
+                  />
+                  <button onClick={() => setShowNew(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors">
+                    {showNew
+                      ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="flex flex-col">
+                <FieldLabel>Confirm Password</FieldLabel>
+                <div className="relative">
+                  <input
+                    type={showConfirm ? 'text' : 'password'}
+                    value={confirmPw}
+                    onChange={e => setConfirmPw(e.target.value)}
+                    onBlur={() => setPwTouched(true)}
+                    placeholder="Enter confirm password"
+                    className="w-full h-10 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-md text-sm text-[var(--color-text-primary)] bg-white outline-none focus:border-[var(--color-border-brand)] focus:shadow-[var(--shadow-focus-brand-sm)] transition-all placeholder:text-[var(--color-text-placeholder)]"
+                  />
+                  <button onClick={() => setShowConfirm(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors">
+                    {showConfirm
+                      ? <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      : <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+
+              {/* Validation */}
+              {pwTouched && (
+                <div className="flex flex-col">
+                  {[
+                    { ok: pwMatchOk,  label: 'Passwords match' },
+                    { ok: pwLengthOk, label: 'Should be in the range of 7 to 100 characters' },
+                  ].map(({ ok, label }) => (
+                    <div key={label} className={`flex items-center gap-2 text-xs font-medium ${ok ? 'text-[var(--color-text-success)]' : 'text-[var(--color-text-danger)]'}`}>
+                      {ok
+                        ? <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                        : <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      }
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-5 flex items-center gap-3">
+              <button
+                disabled={!curPw || !pwMatchOk || !pwLengthOk}
+                className="h-10 px-5 rounded-md bg-[var(--color-brand-primary)] border-[1.5px] border-[var(--color-brand-primary)] text-white text-sm font-semibold flex items-center gap-1.5 hover:bg-[var(--color-brand-primary-hover)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={submitPwChange}
+              >
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Update
+              </button>
+              <button onClick={closePwPanel} className="text-sm font-medium text-[var(--color-text-brand)] hover:text-[var(--color-brand-primary-hover)] transition-colors">
+                Cancel
+              </button>
             </div>
           </div>
         </div>
