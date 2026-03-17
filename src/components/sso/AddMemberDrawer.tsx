@@ -183,9 +183,9 @@ export function AddMemberDrawer({ onClose, onSave }: Props) {
                     onChange={e => setAutoGenPw(e.target.checked)}
                     className="mt-0.5 w-4 h-4 rounded accent-[var(--color-brand-primary)] cursor-pointer shrink-0"
                   />
-                  <span className="text-sm text-[var(--color-text-primary)] leading-snug">
-                    Auto-generate password and send to user's email address
-                    <span className="text-xs text-[var(--color-text-tertiary)] ml-1.5">(Uncheck to set manually)</span>
+                  <span className="flex flex-col">
+                    <span className="text-sm text-[var(--color-text-primary)] leading-snug">Auto-generate password and send to user's email address</span>
+                    <span className="text-xs text-[var(--color-text-tertiary)] mt-0.5">(Uncheck to set manually)</span>
                   </span>
                 </label>
 

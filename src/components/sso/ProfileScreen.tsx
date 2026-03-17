@@ -814,7 +814,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                       const visibleIcons = assignedApps.slice(0, 3)
                       return (
                         <div className="hidden sm:flex w-56 shrink-0 items-center gap-2.5">
-                          <div className="flex items-center w-[68px] shrink-0">
+                          <div className="flex items-center justify-center w-[68px] shrink-0">
                             {visibleIcons.map((a, idx) => (
                               <img
                                 key={a.slug}
@@ -826,7 +826,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                               />
                             ))}
                           </div>
-                          <span className="text-xs text-[var(--color-text-tertiary)] w-14 shrink-0">
+                          <span className="text-xs text-[var(--color-text-tertiary)] w-14 shrink-0 ml-2">
                             {assignedApps.length} app{assignedApps.length !== 1 ? 's' : ''}
                           </span>
                           <span className="text-xs text-[var(--color-text-tertiary)]">
