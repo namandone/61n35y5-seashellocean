@@ -4,7 +4,7 @@ interface Props {
   onLogout: () => void
 }
 
-export default function Enterprises({ onLogout }: Props) {
+export default function Enterprises({ onLogout: _onLogout }: Props) {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       <Sidebar active="enterprises" onNavigate={() => {}} />

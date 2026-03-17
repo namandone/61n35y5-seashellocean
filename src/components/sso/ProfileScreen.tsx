@@ -31,7 +31,7 @@ const GinesysLogo = () => (
 )
 
 // ── Team data ──
-const members = [
+const members: UserDetail[] = [
   { name: 'Laksh Aeterna',   you: true,  email: 'laksh@rfad.com',              role: 'holder', av: 'L', color: 'linear-gradient(135deg,#6dbb5a,#4f7c3f)' },
   { name: 'Aniket Mansell',  you: false, email: 'aniket@retailwithesther.in',   role: 'member', av: 'A', color: 'linear-gradient(135deg,#5a8fe8,#3b6fd4)' },
   { name: 'Priya Sharma',    you: false, email: 'priya@retailwithesther.in',    role: 'admin',  av: 'P', color: 'linear-gradient(135deg,#e87a5a,#c95032)' },
