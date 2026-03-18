@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { AvatarDropdown } from './AvatarDropdown'
 import { FieldLabel } from '../shared/FieldLabel'
 import { EnterpriseSwitcher, ENTERPRISES } from '../shared/EnterpriseSwitcher'
@@ -145,7 +146,9 @@ const Card = ({ children, className = '' }: { children: React.ReactNode; classNa
 )
 
 export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, onLogout }: Props) {
-  const [tab, setTab] = useState<ProfileTab>('profile')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = (searchParams.get('tab') as ProfileTab) ?? 'profile'
+  const setTab = (t: ProfileTab) => setSearchParams({ tab: t }, { replace: true })
   const [avOpen, setAvOpen] = useState(false)
   const [showLogout, setShowLogout] = useState(false)
   const [showEntSwitcher, setShowEntSwitcher] = useState(false)
@@ -359,11 +362,13 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
           })()}
 
           <div className="relative">
-            <div
+            <button
+              aria-label="Open account menu"
+              aria-expanded={avOpen}
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold cursor-pointer"
               style={{ background: 'var(--gradient-avatar-primary)' }}
               onClick={() => setAvOpen(!avOpen)}
-            >L</div>
+            >L</button>
             {avOpen && (
               <AvatarDropdown
                 name="Laksh Aeterna"
@@ -419,18 +424,18 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
               <div className="p-6 flex gap-8 items-start">
                 {/* Avatar */}
                 <div className="shrink-0 flex flex-col items-center gap-2">
-                  <div className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-semibold relative cursor-pointer group" style={{ background: 'var(--gradient-avatar-primary)' }}>
+                  <button aria-label="Change profile photo" className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-semibold relative cursor-pointer group" style={{ background: 'var(--gradient-avatar-primary)' }}>
                     L
-                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div aria-hidden="true" className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
                     </div>
-                  </div>
+                  </button>
                   <span className="text-[10px] text-[var(--color-text-tertiary)] text-center">Change photo</span>
                 </div>
 
                 {/* Fields */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-xl font-semibold mb-5" style={{ letterSpacing: '-0.4px' }}>User Information</div>
+                  <h2 className="text-xl font-semibold mb-5" style={{ letterSpacing: '-0.4px' }}>User Information</h2>
                   <div className="grid grid-cols-2 gap-5 mb-5">
                     <div>
                       <FieldLabel>Name</FieldLabel>
@@ -472,7 +477,9 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                     {!editing && (
                       <div>
                         <FieldLabel>Last Login</FieldLabel>
-                        <div className="text-sm font-normal text-[var(--color-text-primary)]">17 Mar 2026&nbsp; 00:00:00 PM</div>
+                        <div className="text-sm font-normal text-[var(--color-text-primary)]">
+                          {new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date('2026-03-17T00:00:00'))}
+                        </div>
                         <button
                           onClick={() => setShowLoginHistory(true)}
                           className="text-xs text-[var(--color-text-brand)] hover:underline cursor-pointer mt-0.5"
@@ -523,7 +530,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
               {/* 2FA */}
               <Card>
                 <div className="p-6 pb-2">
-                  <div className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Two-factor authentication</div>
+                  <h2 className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Two-factor authentication</h2>
                   <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Require an additional security code while logging in. Adds a second layer of protection beyond your password.</div>
                 </div>
                 <div className="p-6 flex flex-col gap-4">
@@ -549,17 +556,17 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
               <Card>
               <div className="p-6 flex gap-8 items-start">
                 <div className="shrink-0 flex flex-col items-center gap-2">
-                  <div className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-semibold relative cursor-pointer group" style={{ background: ENTERPRISES.find(e => e.name === enterprise)?.color ?? 'linear-gradient(135deg,#5a8fe8,#3b6fd4)' }}>
+                  <button aria-label="Change enterprise logo" className="w-[88px] h-[88px] rounded-full flex items-center justify-center text-white text-4xl font-semibold relative cursor-pointer group" style={{ background: ENTERPRISES.find(e => e.name === enterprise)?.color ?? 'linear-gradient(135deg,#5a8fe8,#3b6fd4)' }}>
                     {ENTERPRISES.find(e => e.name === enterprise)?.initial ?? enterprise[0]}
-                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div aria-hidden="true" className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
                     </div>
-                  </div>
+                  </button>
                   <span className="text-[10px] text-[var(--color-text-tertiary)] text-center">Change logo</span>
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="text-xl font-semibold mb-5" style={{ letterSpacing: '-0.4px' }}>Enterprise Information</div>
+                  <h2 className="text-xl font-semibold mb-5" style={{ letterSpacing: '-0.4px' }}>Enterprise Information</h2>
                   <div className="grid grid-cols-2 gap-5 mb-5">
                     {[
                       { label: 'Trade Name',  val: tradeName,  set: setTradeName,  ph: '' },
@@ -597,7 +604,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                               </div>
                               <div className="max-h-44 overflow-y-auto p-1">
                                 {timezones.filter(t => t.toLowerCase().includes(tzSearch.toLowerCase())).map(t => (
-                                  <div key={t} onClick={() => { setTimezone(t); setTzOpen(false); setTzSearch('') }} className={`px-2.5 py-2 rounded-md text-xs cursor-pointer transition-colors ${t === timezone ? 'font-semibold text-[var(--color-text-brand)] bg-[var(--color-bg-brand-subtle)]' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'}`}>{t}</div>
+                                  <button key={t} onClick={() => { setTimezone(t); setTzOpen(false); setTzSearch('') }} className={`w-full text-left px-2.5 py-2 rounded-md text-xs cursor-pointer transition-colors ${t === timezone ? 'font-semibold text-[var(--color-text-brand)] bg-[var(--color-bg-brand-subtle)]' : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'}`}>{t}</button>
                                 ))}
                               </div>
                             </div>
@@ -636,7 +643,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
               {/* Domain Policy */}
               <Card>
                 <div className="p-6 pb-2">
-                  <div className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Domain Policy</div>
+                  <h2 className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Domain Policy</h2>
                   <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Authorised domains for SSO username emails eligible to access this enterprise.</div>
                 </div>
                 <div className="p-6 flex flex-col gap-4">
@@ -686,7 +693,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
               {/* Password Policy */}
               <Card>
                 <div className="p-6 pb-2">
-                  <div className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Password Policy</div>
+                  <h2 className="text-xl font-semibold mb-1" style={{ letterSpacing: '-0.3px' }}>Password Policy</h2>
                   <div className="text-xs text-[var(--color-text-secondary)] leading-relaxed">Define password complexity requirements for all users in this enterprise.</div>
                 </div>
                 <div className="p-6 flex flex-col gap-6">
@@ -726,20 +733,17 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                   {/* 2FA toggle */}
                   <div>
                     <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Additional Settings</div>
-                    <div
-                      onClick={() => { setTfa(!tfa); setPwDirty(true) }}
-                      className="flex items-center gap-3 py-1 cursor-pointer"
-                    >
+                    <label className="flex items-center gap-3 py-1 cursor-pointer">
                       <div className="flex-1">
                         <div className="text-base font-medium text-[var(--color-text-primary)]">Make 2FA mandatory for all users</div>
                         <div className="text-xs text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">Users will be prompted to set up 2FA on their next login if not already configured.</div>
                       </div>
-                      <div onClick={e => e.stopPropagation()} className="relative w-[38px] h-[22px] shrink-0">
+                      <div className="relative w-[38px] h-[22px] shrink-0">
                         <input type="checkbox" className="sr-only" checked={tfa} onChange={() => { setTfa(!tfa); setPwDirty(true) }} />
-                        <div className={`absolute inset-0 rounded-full transition-colors ${tfa ? 'bg-[var(--color-text-info)]' : 'bg-[var(--color-border-default)]'}`} />
-                        <div className={`absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-[var(--shadow-xs)] transition-transform ${tfa ? 'translate-x-[19px]' : 'translate-x-[3px]'}`} />
+                        <div aria-hidden="true" className={`absolute inset-0 rounded-full transition-colors ${tfa ? 'bg-[var(--color-text-info)]' : 'bg-[var(--color-border-default)]'}`} />
+                        <div aria-hidden="true" className={`absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-[var(--shadow-xs)] transition-transform ${tfa ? 'translate-x-[19px]' : 'translate-x-[3px]'}`} />
                       </div>
-                    </div>
+                    </label>
                   </div>
                 </div>
                 {(pwDirty || pwSaved) && (
@@ -773,10 +777,10 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <div className="text-xl font-semibold flex items-center gap-2.5" style={{ letterSpacing: '-0.5px' }}>
+                <h2 className="text-xl font-semibold flex items-center gap-2.5" style={{ letterSpacing: '-0.5px' }}>
                   Team
                   <span className="text-xs font-semibold text-[var(--color-text-secondary)] bg-[var(--color-border-muted)] border border-[var(--color-border-default)] rounded-full px-2.5 py-0.5">{teamMembers.length}</span>
-                </div>
+                </h2>
                 <div className="ml-auto flex gap-2.5">
                   <button className="h-10 px-4 rounded-md border-[1.5px] border-[var(--color-border-default)] text-sm font-medium text-[var(--color-text-secondary)] flex items-center gap-1.5 hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)] transition-all bg-transparent">
                     <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
@@ -800,7 +804,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                 {filteredMembers.length === 0 ? (
                   <div className="py-8 text-center text-xs text-[var(--color-text-tertiary)] italic">No members match your search</div>
                 ) : filteredMembers.map((m, i) => (
-                  <div key={m.email} onClick={() => setViewTarget(m)} className={`flex items-center gap-3.5 px-4 py-3.5 hover:bg-[var(--color-bg-page)] transition-colors relative cursor-pointer ${i < filteredMembers.length - 1 ? 'border-b border-[var(--color-border-muted)]' : ''} ${i === 0 ? 'rounded-t-xl' : ''} ${i === filteredMembers.length - 1 ? 'rounded-b-xl' : ''}`}>
+                  <button key={m.email} onClick={() => setViewTarget(m)} className={`w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-[var(--color-bg-page)] transition-colors relative cursor-pointer text-left ${i < filteredMembers.length - 1 ? 'border-b border-[var(--color-border-muted)]' : ''} ${i === 0 ? 'rounded-t-xl' : ''} ${i === filteredMembers.length - 1 ? 'rounded-b-xl' : ''}`}>
                     <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style={{ background: m.color }}>{m.av}</div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium text-[var(--color-text-primary)] truncate">
@@ -838,7 +842,7 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
                     <div className="w-32 shrink-0 flex justify-end">
                       <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${roleCls[m.role]}`}>{roleLbl[m.role]}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </Card>
             </>
@@ -849,13 +853,13 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
       {/* ── Remove Member Modal ── */}
 
       {/* ── Remove Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${removeToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${removeToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M2 21a8 8 0 0 1 11.873-7"/><circle cx="10" cy="8" r="5"/><path d="m17 17 5 5"/><path d="m22 17-5 5"/></svg>
         {removeToast} was removed from the team
       </div>
 
       {/* ── Enterprise Switch Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${entSwitchToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${entSwitchToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
           <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
@@ -863,14 +867,14 @@ export default function ProfileScreen({ enterprise, onSwitchEnterprise, onBack, 
       </div>
 
       {/* ── Add Member Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${addMemberToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${addMemberToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
           <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         {addMemberToast} added to the team
       </div>
 
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${editMemberToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${editMemberToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
           <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </div>

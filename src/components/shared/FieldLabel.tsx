@@ -9,9 +9,10 @@ import type { ReactNode } from 'react'
  *     gap-* or mt-* on the field wrapper
  *   - Required fields: no marker (all fields are implicitly required unless noted)
  *   - Optional fields: append " (Optional)" inside the label text
+ *   - Pass htmlFor matching the input's id for semantic association
  */
-export const FieldLabel = ({ children }: { children: ReactNode }) => (
-  <div className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-1">
+export const FieldLabel = ({ children, htmlFor }: { children: ReactNode; htmlFor?: string }) => (
+  <label htmlFor={htmlFor} className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-1 block">
     {children}
-  </div>
+  </label>
 )

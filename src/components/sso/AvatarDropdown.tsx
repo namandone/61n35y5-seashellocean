@@ -39,18 +39,18 @@ export const AvatarDropdown = ({ name, roleLabel, roleBg, roleText, items }: Ava
     {/* Menu items */}
     <div className="border-t border-[var(--color-border-muted)] pt-1.5 pb-1.5">
       {items.map(({ icon, label, danger, onClick }) => (
-        <div
+        <button
           key={label}
           onClick={onClick}
-          className={`flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium cursor-pointer transition-colors ${
+          className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-left cursor-pointer transition-colors ${
             danger
               ? 'text-[var(--color-text-danger)] hover:bg-[var(--color-bg-danger)]'
               : 'text-[var(--color-text-primary)] hover:bg-[var(--color-bg-subtle)]'
           }`}
         >
-          {icon}
+          <span aria-hidden="true">{icon}</span>
           {label}
-        </div>
+        </button>
       ))}
     </div>
   </div>

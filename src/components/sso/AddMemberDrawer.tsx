@@ -96,14 +96,17 @@ export function AddMemberDrawer({ onClose, onSave }: Props) {
       />
 
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Add User"
         className={`fixed inset-y-0 right-0 w-full sm:max-w-[600px] bg-white z-[200] flex flex-col shadow-[var(--shadow-xl)] ${closing ? 'slide-out-right' : 'slide-in-right'}`}
         style={{ borderRadius: 0 }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-0 shrink-0">
           <div className="text-xl font-semibold text-[var(--color-text-primary)]" style={{ letterSpacing: '-0.3px' }}>Add User</div>
-          <button onClick={dismiss} className="w-8 h-8 flex items-center justify-center rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <button aria-label="Close drawer" onClick={dismiss} className="w-8 h-8 flex items-center justify-center rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
+            <svg aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
@@ -128,7 +131,7 @@ export function AddMemberDrawer({ onClose, onSave }: Props) {
 
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-6 py-5">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-5">
 
           {/* ── USER INFO ── */}
           {activeTab === 'info' && (
@@ -136,33 +139,33 @@ export function AddMemberDrawer({ onClose, onSave }: Props) {
               <div className="grid grid-cols-2 gap-4">
 
                 <div className="flex flex-col">
-                  <FieldLabel>First Name</FieldLabel>
-                  <input value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Enter first name" className={INPUT} />
+                  <FieldLabel htmlFor="add-firstName">First Name</FieldLabel>
+                  <input id="add-firstName" autoComplete="given-name" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Enter first name…" className={INPUT} />
                 </div>
 
                 <div className="flex flex-col">
-                  <FieldLabel>Last Name (Optional)</FieldLabel>
-                  <input value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Enter last name" className={INPUT} />
+                  <FieldLabel htmlFor="add-lastName">Last Name (Optional)</FieldLabel>
+                  <input id="add-lastName" autoComplete="family-name" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Enter last name…" className={INPUT} />
                 </div>
 
                 <div className="flex flex-col">
-                  <FieldLabel>Username</FieldLabel>
-                  <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter username" className={INPUT} />
+                  <FieldLabel htmlFor="add-username">Username</FieldLabel>
+                  <input id="add-username" autoComplete="username" spellCheck={false} value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter username…" className={INPUT} />
                 </div>
 
                 <div className="flex flex-col">
-                  <FieldLabel>Phone (Optional)</FieldLabel>
-                  <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="Enter phone number" className={INPUT} />
+                  <FieldLabel htmlFor="add-phone">Phone (Optional)</FieldLabel>
+                  <input id="add-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Enter phone number…" className={INPUT} />
                 </div>
 
                 <div className="flex flex-col">
-                  <FieldLabel>Email</FieldLabel>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter email address" className={INPUT} />
+                  <FieldLabel htmlFor="add-email">Email</FieldLabel>
+                  <input id="add-email" type="email" autoComplete="email" spellCheck={false} value={email} onChange={e => setEmail(e.target.value)} placeholder="Enter email address…" className={INPUT} />
                 </div>
 
                 <div className="flex flex-col">
-                  <FieldLabel>Role</FieldLabel>
-                  <select
+                  <FieldLabel htmlFor="add-role">Role</FieldLabel>
+                  <select id="add-role"
                     value={role}
                     onChange={e => setRole(e.target.value as 'member' | 'admin')}
                     className={INPUT + ' cursor-pointer pr-8 appearance-none'}
@@ -202,20 +205,20 @@ export function AddMemberDrawer({ onClose, onSave }: Props) {
                 {!autoGenPw && (
                   <div className="grid grid-cols-2 gap-4 pt-1">
                     <div className="flex flex-col">
-                      <FieldLabel>Password</FieldLabel>
+                      <FieldLabel htmlFor="add-password">Password</FieldLabel>
                       <div className="relative">
-                        <input type={showPw ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" className={INPUT + ' pr-10'} />
-                        <button onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
-                          {showPw ? <EyeOff /> : <EyeOpen />}
+                        <input id="add-password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password…" className={INPUT + ' pr-10'} />
+                        <button aria-label={showPw ? 'Hide password' : 'Show password'} onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
+                          <span aria-hidden="true">{showPw ? <EyeOff /> : <EyeOpen />}</span>
                         </button>
                       </div>
                     </div>
                     <div className="flex flex-col">
-                      <FieldLabel>Confirm Password</FieldLabel>
+                      <FieldLabel htmlFor="add-confirmPassword">Confirm Password</FieldLabel>
                       <div className="relative">
-                        <input type={showConfirm ? 'text' : 'password'} value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="Confirm password" className={INPUT + ' pr-10'} />
-                        <button onClick={() => setShowConfirm(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
-                          {showConfirm ? <EyeOff /> : <EyeOpen />}
+                        <input id="add-confirmPassword" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="Confirm password…" className={INPUT + ' pr-10'} />
+                        <button aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'} onClick={() => setShowConfirm(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
+                          <span aria-hidden="true">{showConfirm ? <EyeOff /> : <EyeOpen />}</span>
                         </button>
                       </div>
                     </div>
@@ -233,14 +236,15 @@ export function AddMemberDrawer({ onClose, onSave }: Props) {
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
                 <input
+                  aria-label="Search apps"
                   className="flex-1 border-none bg-transparent text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-tertiary)]"
                   placeholder="Search apps…"
                   value={appSearch}
                   onChange={e => setAppSearch(e.target.value)}
                 />
                 {appSearch && (
-                  <button onClick={() => setAppSearch('')} className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
-                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <button aria-label="Clear search" onClick={() => setAppSearch('')} className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer">
+                    <svg aria-hidden="true" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
                   </button>

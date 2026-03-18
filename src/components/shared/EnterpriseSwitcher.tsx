@@ -45,6 +45,9 @@ export function EnterpriseSwitcher({ enterprise, onSwitch, onClose }: Props) {
 
       {/* Drawer */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Switch Enterprise"
         className={`fixed inset-y-0 right-0 w-[400px] bg-white z-[200] flex flex-col shadow-[var(--shadow-xl)] ${closing ? 'slide-out-right' : 'slide-in-right'}`}
         style={{ borderRadius: 0 }}
       >
@@ -52,17 +55,18 @@ export function EnterpriseSwitcher({ enterprise, onSwitch, onClose }: Props) {
         <div className="flex items-center justify-between px-6 pt-6 pb-5 shrink-0">
           <div className="text-xl font-semibold text-[var(--color-text-primary)]" style={{ letterSpacing: '-0.3px' }}>Switch Enterprise</div>
           <button
+            aria-label="Close switcher"
             onClick={dismiss}
             className="w-8 h-8 flex items-center justify-center rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--color-bg-subtle)] hover:text-[var(--color-text-secondary)] transition-colors cursor-pointer"
           >
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
 
         {/* Enterprise list */}
-        <div className="flex-1 overflow-y-auto px-6 pb-6 flex flex-col gap-2">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-6 pb-6 flex flex-col gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-2">Your Enterprises</p>
           {ENTERPRISES.map(ent => {
             const isActive = ent.name === enterprise

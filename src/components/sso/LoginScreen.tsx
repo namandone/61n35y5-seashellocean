@@ -363,7 +363,7 @@ export default function LoginScreen({ onLogin }: Props) {
             : '1.5px solid var(--color-border-default)',
           background: simActive ? 'var(--color-bg-brand-subtle)' : '#fff',
           color: simActive ? 'var(--color-text-brand)' : 'var(--color-text-disabled)',
-          transition: 'all 0.18s ease',
+          transition: 'background 0.18s ease, color 0.18s ease, border-color 0.18s ease',
         }}
       >
         {simActive ? 'End Sim' : 'Simulate'}
@@ -468,16 +468,17 @@ export default function LoginScreen({ onLogin }: Props) {
             {/* Email field */}
             <div className="relative mb-3.5">
               <input
+                id="login-email"
                 className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-md bg-[var(--color-bg-subtle)] text-sm text-[var(--color-text-primary)] outline-none transition-all peer focus:border-[var(--color-border-brand)] focus:bg-[var(--color-bg-surface)] focus:shadow-[var(--shadow-focus-brand)]"
-                type="text" placeholder=" "
+                type="email" name="email" autoComplete="email" spellCheck={false} placeholder=" "
                 value={email} onChange={e => setEmail(e.target.value)}
               />
-              <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
+              <label htmlFor="login-email" className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
                 Enter Email
               </label>
               {email && (
-                <button className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]" onClick={() => setEmail('')}>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <button aria-label="Clear email" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]" onClick={() => setEmail('')}>
+                  <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               )}
             </div>
@@ -485,15 +486,20 @@ export default function LoginScreen({ onLogin }: Props) {
             {/* Password field */}
             <div className="relative mb-2">
               <input
+                id="login-password"
                 className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-md bg-[var(--color-bg-subtle)] text-sm text-[var(--color-text-primary)] outline-none transition-all peer focus:border-[var(--color-border-brand)] focus:bg-[var(--color-bg-surface)] focus:shadow-[var(--shadow-focus-brand)]"
-                type={showPassword ? 'text' : 'password'} placeholder=" "
+                type={showPassword ? 'text' : 'password'} name="password" autoComplete="current-password" placeholder=" "
                 value={password} onChange={e => setPassword(e.target.value)}
               />
-              <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
+              <label htmlFor="login-password" className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
                 Enter Password
               </label>
-              <button className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]" onClick={() => setShowPassword(!showPassword)}>
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <button
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   {showPassword
                     ? <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>
                     : <><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
@@ -539,17 +545,18 @@ export default function LoginScreen({ onLogin }: Props) {
             {/* Email input */}
             <div className="relative mb-3.5">
               <input
+                id="forgot-email"
                 className="w-full h-14 pt-6 pb-2 px-3 pr-10 border-[1.5px] border-[var(--color-border-default)] rounded-md bg-[var(--color-bg-subtle)] text-sm text-[var(--color-text-primary)] outline-none transition-all peer focus:border-[var(--color-border-brand)] focus:bg-[var(--color-bg-surface)] focus:shadow-[var(--shadow-focus-brand)]"
-                type="email" placeholder=" "
+                type="email" name="email" autoComplete="email" spellCheck={false} placeholder=" "
                 value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && sendReset()}
               />
-              <label className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
+              <label htmlFor="forgot-email" className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--color-text-placeholder)] pointer-events-none transition-all peer-focus:top-2.5 peer-focus:translate-y-0 peer-focus:text-[10px] peer-focus:font-semibold peer-focus:uppercase peer-focus:tracking-wider peer-focus:text-[var(--color-text-brand)] peer-[:not(:placeholder-shown)]:top-2.5 peer-[:not(:placeholder-shown)]:translate-y-0 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-semibold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider peer-[:not(:placeholder-shown)]:text-[var(--color-text-brand)]">
                 Enter Email
               </label>
               {forgotEmail && (
-                <button className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]" onClick={() => setForgotEmail('')}>
-                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <button aria-label="Clear email" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-placeholder)] hover:text-[var(--color-text-secondary)]" onClick={() => setForgotEmail('')}>
+                  <svg aria-hidden="true" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               )}
             </div>

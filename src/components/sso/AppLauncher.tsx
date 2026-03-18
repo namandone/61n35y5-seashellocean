@@ -168,7 +168,7 @@ export default function AppLauncher({ enterprise, onSwitchEnterprise, onGoToProf
                   </div>
                 )}
                 {enterprise}
-                <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="opacity-50 shrink-0">
+                <svg aria-hidden="true" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="opacity-50 shrink-0">
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
@@ -177,13 +177,15 @@ export default function AppLauncher({ enterprise, onSwitchEnterprise, onGoToProf
 
           {/* Avatar */}
           <div className="relative">
-            <div
+            <button
+              aria-label="Open account menu"
+              aria-expanded={avOpen}
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold cursor-pointer"
               style={{ background: 'var(--gradient-avatar-primary)' }}
               onClick={() => setAvOpen(!avOpen)}
             >
               L
-            </div>
+            </button>
 
             {/* Dropdown */}
             {avOpen && (
@@ -236,10 +238,11 @@ export default function AppLauncher({ enterprise, onSwitchEnterprise, onGoToProf
         {/* App grid */}
         <div className="flex flex-wrap justify-center gap-4 w-full max-w-[1020px]">
           {filtered.map(app => (
-            <div
+            <button
               key={app.name}
               onClick={() => launch(app.name)}
-              className={`w-[224px] bg-white rounded-[var(--radius-xl)] p-7 pt-7 pb-5 flex flex-col items-center relative overflow-hidden shadow-[var(--shadow-sm)] transition-all duration-200 group ${
+              disabled={app.status === 'expired'}
+              className={`w-[224px] bg-white rounded-[var(--radius-xl)] p-7 pt-7 pb-5 flex flex-col items-center relative overflow-hidden shadow-[var(--shadow-sm)] transition-all duration-200 group text-left ${
                 app.status === 'expired'
                   ? 'opacity-75 cursor-not-allowed'
                   : 'cursor-pointer hover:-translate-y-1.5 hover:shadow-[var(--shadow-lg)]'
@@ -274,13 +277,13 @@ export default function AppLauncher({ enterprise, onSwitchEnterprise, onGoToProf
               <div className="text-base font-medium text-[var(--color-text-primary)] mb-0.5 text-center" style={{ letterSpacing: '-0.25px' }}>{app.name}</div>
               <div className="text-xs font-normal text-[var(--color-text-tertiary)] text-center mb-3.5">{app.cat}</div>
               <div className="text-xs font-normal text-[var(--color-text-secondary)] text-center leading-relaxed">{app.desc}</div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
       {/* ── Enterprise Switch Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9998] transition-all duration-200 ${entToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9998] transition-all duration-200 ${entToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <div className="w-5 h-5 rounded-md bg-[var(--color-brand-primary)] flex items-center justify-center shrink-0">
           <svg width="11" height="11" fill="none" stroke="white" strokeWidth="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" /></svg>
         </div>
@@ -288,7 +291,7 @@ export default function AppLauncher({ enterprise, onSwitchEnterprise, onGoToProf
       </div>
 
       {/* ── Launch Toast ── */}
-      <div className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+      <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-7 left-1/2 -translate-x-1/2 bg-[var(--color-bg-inverse)] text-white px-4 py-2.5 rounded-md flex items-center gap-2.5 text-sm font-medium shadow-[var(--shadow-lg)] whitespace-nowrap z-[9999] transition-all duration-200 ${toast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
         <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0">
           <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
         </div>

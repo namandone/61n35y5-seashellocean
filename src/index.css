@@ -3,7 +3,8 @@
 @import "./tokens.css";
 
 * { box-sizing: border-box; }
-input { outline: none; }
+/* Styled text inputs handle focus via border/shadow tokens; checkboxes/radios keep native ring */
+input:not([type="checkbox"]):not([type="radio"]) { outline: none; }
 button { cursor: pointer; }
 
 /* Global keyboard focus ring — brand green, consistent across all pages */
@@ -64,7 +65,12 @@ body {
   .slide-out-right,
   .overlay-in,
   .overlay-out,
-  .banner-enter { animation: none; }
+  .banner-enter,
+  .view-in,
+  .animate-spin { animation: none; }
+
+  /* Gradient drift on login left panel */
+  * { animation-name: none !important; }
 }
 
 ::-webkit-scrollbar { width: 4px; }
